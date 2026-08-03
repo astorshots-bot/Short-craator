@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#000000">
+<title>ViralCut PRO RENDER — Auto Shorts Maker</title>
+<style>
+:root {
+  --bg: #000000;
+  --surface: #0a0a0a;
+  --surface-2: #141414;
+  --text: #ffffff;
+  --muted: #777777;
+  --accent: #ff0050;
+  --accent-2: #00f2ea;
+  --success: #00ff88;
+  --warning: #ffaa00;
+  --radius: 24px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+.header {
+  background: linear-gradient(180deg, rgba(255,0,80,0.08), transparent);
+  padding: 32px 20px 20px;
+  text-align: center;
+  border-bottom: 1px solid #1a1a1a;
+  position: sticky;
+  top: 0;
+  backdrop-filter: blur(20px);
+  z-index: 100;
+}
+.header h1 {
+  font-size: 34px;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -1.5px;
+}
+.header p { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 2.5px; margin-top: 6px; }
+
+.container { padding: 16px; max-width: 680px; margin: 0 auto; }
+
+/* Upload Zone */
+.upload-zone {
+  border: 2px dashed #333;
+  border-radius: var(--radius);
+  padding: 48px 24px;
+  text-align: center;
+  background: var(--surface);
+  transition: all 0.3s;
+  cursor: pointer;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.upload-zone:hover, .upload-zone.dragover {
+  border-color: var(--accent);
+  background: rgba(255,0,80,0.04);
+}
+.upload-zone .icon { font-size: 48px; margin-bottom: 12px; opacity: 0.6; }
+.upload-zone h3 { font-size: 18px; margin-bottom: 8px; }
+.upload-zone p { font-size: 13px; color: var(--muted); }
+.upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+/* Video Preview */
+.video-preview-card {
+  background: var(--surface);
+  border: 1px solid #1f1f1f;
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+  display: none;
+}
+.video-preview-card.active { display: block; }
+.video-meta { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+.video-thumb {
+  width: 100px; height: 56px; border-radius: 12px; background: #222; object-fit: cover;
+}
+.video-info h4 { font-size: 15px; font-weight: 700; line-height: 1.3; }
+.video-info p { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+/* Progress */
+.progress-card {
+  background: var(--surface);
+  border: 1px solid #1f1f1f;
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+  display: none;
+}
+.progress-card.active { display: block; }
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.progress-title { font-size: 15px; font-weight: 700; }
+.progress-percent { font-size: 14px; font-weight: 800; color: var(--accent-2); }
+.progress-bar-wrap {
+  height: 8px;
+  background: #222;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  width: 0%;
+  transition: width 0.4s ease;
+  border-radius: 4px;
+}
+.progress-status { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.progress-status .ok { color: var(--success); }
+.progress-status .warn { color: var(--warning); }
+.progress-status .err { color: #ff4444; }
+
+/* Buttons */
+.btn {
+  width: 100%;
+  padding: 18px;
+  background: linear-gradient(135deg, var(--accent), #d10040);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn-secondary {
+  background: var(--surface-2);
+  border: 1px solid #444;
+  color: var(--text);
+}
+.btn-success { background: linear-gradient(135deg, var(--success), #00aa55); }
+.btn-warning { background: linear-gradient(135deg, var(--warning), #cc8800); color: #000; }
+
+/* Short Cards */
+.shorts-section { display: none; }
+.shorts-section.active { display: block; }
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 0 4px;
+}
+.section-header h2 { font-size: 20px; }
+.section-header span { font-size: 13px; color: var(--muted); }
+
+.short-card {
+  background: var(--surface-2);
+  border: 1px solid #252525;
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.short-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+.short-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.short-rank {
+  font-size: 28px;
+  font-weight: 900;
+  color: #222;
+  line-height: 1;
+}
+.viral-score {
+  background: rgba(255,0,80,0.12);
+  color: var(--accent);
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 800;
+  border: 1px solid rgba(255,0,80,0.25);
+}
+.viral-score.hot {
+  background: rgba(0,242,234,0.12);
+  color: var(--accent-2);
+  border-color: rgba(0,242,234,0.25);
+}
+.hook-text {
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.35;
+  margin-bottom: 12px;
+  padding: 16px;
+  background: rgba(255,0,80,0.04);
+  border-radius: 16px;
+  border-left: 4px solid var(--accent);
+}
+.time-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #1a1a1a;
+  padding: 8px 14px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'SF Mono', monospace;
+  margin-bottom: 12px;
+  border: 1px solid #333;
+}
+
+/* Render Preview */
+.render-preview {
+  width: 100%;
+  max-width: 240px;
+  aspect-ratio: 9/16;
+  margin: 0 auto 16px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid #333;
+  position: relative;
+}
+.render-preview video, .render-preview canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.render-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.7);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-2);
+}
+
+/* Action Grid */
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.action-grid .btn { margin-bottom: 0; padding: 14px; font-size: 13px; }
+
+/* Render Progress */
+.render-progress {
+  margin-top: 12px;
+  padding: 12px;
+  background: #0f0f0f;
+  border-radius: 12px;
+  border: 1px solid #222;
+  display: none;
+}
+.render-progress.active { display: block; }
+.render-progress-bar {
+  height: 6px;
+  background: #222;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.render-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  width: 0%;
+  transition: width 0.3s;
+}
+.render-progress-text {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120px);
+  background: var(--surface-2);
+  border: 1px solid #444;
+  color: var(--text);
+  padding: 16px 28px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 700;
+  z-index: 3000;
+  opacity: 0;
+  transition: all 0.35s;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+/* Pro Banner */
+.pro-banner {
+  background: linear-gradient(135deg, rgba(255,0,80,0.08), rgba(0,242,234,0.05));
+  border: 1px solid rgba(255,0,80,0.2);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.pro-banner h3 { margin-bottom: 6px; }
+.pro-banner p { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.88);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(12px);
+}
+.modal.active { display: flex; }
+.modal-box {
+  background: var(--surface);
+  border: 1px solid #333;
+  border-radius: var(--radius);
+  padding: 24px;
+  max-width: 420px;
+  width: 100%;
+}
+.modal-title { font-size: 20px; font-weight: 800; margin-bottom: 12px; }
+
+.hidden { display: none !important; }
+
+/* Warning box */
+.warn-box {
+  background: rgba(255,170,0,0.08);
+  border: 1px solid rgba(255,170,0,0.3);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--warning);
+  line-height: 1.5;
+}
+.warn-box strong { color: #ffcc00; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <h1>⚡ ViralCut PRO</h1>
+  <p>Wrzuć wideo → AI zrobi shorty z napisami</p>
+</header>
+
+<div class="container">
+
+  <!-- WARNINGS -->
+  <div class="warn-box" id="warnBox">
+    <strong>📱 Wymagania:</strong> Chrome na Androidzie. Pierwsze uruchomienie pobiera model AI (~40MB). Transkrypcja 10min filmu = ~5-8min czekania. Renderowanie trwa tyle co długość shorta. Telefon musi być podłączony do ładowarki.
+  </div>
+
+  <!-- PRO BANNER -->
+  <div id="proBanner" class="pro-banner">
+    <h3>🔒 Odblokuj PRO</h3>
+    <p>Więcej shortów, renderowanie bez limitów, wyższa jakość 1080p</p>
+    <button class="btn" onclick="showProModal()">AKTYWUJ PRO</button>
+  </div>
+
+  <!-- UPLOAD -->
+  <div class="upload-zone" id="uploadZone">
+    <input type="file" id="fileInput" accept="video/*" onchange="handleFile(event)">
+    <div class="icon">🎬</div>
+    <h3>Dotknij by wybrać wideo</h3>
+    <p>MP4, MOV, WEBM — max 30 minut</p>
+  </div>
+
+  <!-- VIDEO META -->
+  <div class="video-preview-card" id="videoMetaCard">
+    <div class="video-meta">
+      <video id="sourceVideo" style="width:100px;height:56px;border-radius:12px;object-fit:cover;background:#222;" muted playsinline></video>
+      <div class="video-info">
+        <h4 id="fileName">video.mp4</h4>
+        <p id="fileSize">0 MB · 0:00</p>
+      </div>
+    </div>
+    <button class="btn" id="startBtn" onclick="startPipeline()">🚀 START — TRANSSKRYPCJA + ANALIZA</button>
+    <button class="btn btn-secondary" onclick="resetApp()">🗑 Wyczyść</button>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-card" id="progressCard">
+    <div class="progress-header">
+      <span class="progress-title" id="progressTitle">Inicjalizacja...</span>
+      <span class="progress-percent" id="progressPercent">0%</span>
+    </div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
+    <div class="progress-status" id="progressStatus">Czekam na start...</div>
+  </div>
+
+  <!-- SHORTS RESULTS -->
+  <div class="shorts-section" id="shortsSection">
+    <div class="section-header">
+      <h2>🎯 Gotowe shorty</h2>
+      <span id="shortsCount">0 znalezionych</span>
+    </div>
+    <div id="shortsList"></div>
+  </div>
+
+  <!-- RENDERING AREA (hidden canvas) -->
+  <canvas id="renderCanvas" style="display:none;"></canvas>
+
+</div>
+
+<!-- PRO MODAL -->
+<div class="modal" id="proModal">
+  <div class="modal-box">
+    <div class="modal-title">🔓 Aktywuj PRO</div>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:16px;">Wpisz kod z Gumroad</p>
+    <input type="text" id="proCode" placeholder="Kod PRO..." style="width:100%;background:var(--surface-2);border:1px solid #333;border-radius:16px;padding:16px;color:var(--text);font-size:16px;margin-bottom:12px;">
+    <button class="btn" onclick="activatePro()">AKTYWUJ</button>
+    <button class="btn btn-secondary" onclick="closeProModal()" style="margin-top:8px;">Anuluj</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+
+// ===== STATE =====
+const state = {
+  isPro: localStorage.getItem('vc_render_pro') === 'true',
+  freeUses: parseInt(localStorage.getItem('vc_render_free') || '1'),
+  file: null,
+  videoUrl: null,
+  duration: 0,
+  segments: [],
+  shorts: [],
+  transcriber: null,
+  modelLoaded: false
+};
+
+// ===== DOM =====
+const $ = id => document.getElementById(id);
+const show = id => $(id).classList.add('active');
+const hide = id => $(id).classList.remove('active');
+
+// ===== INIT =====
+function init() {
+  if (state.isPro) {
+    $('proBanner').classList.add('hidden');
+    $('warnBox').innerHTML = '<strong>✅ PRO Aktywne:</strong> Nieograniczone renderowanie, 1080p, wszystkie funkcje.';
+    $('warnBox').style.borderColor = 'rgba(0,255,136,0.3)';
+    $('warnBox').style.background = 'rgba(0,255,136,0.05)';
+    $('warnBox').style.color = 'var(--success)';
+  }
+}
+
+// ===== FILE HANDLING =====
+window.handleFile = function(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  if (!f.type.startsWith('video/')) { toast('❌ To nie jest plik wideo'); return; }
+  if (f.size > 2 * 1024 * 1024 * 1024) { toast('❌ Max 2GB'); return; }
+
+  state.file = f;
+  state.videoUrl = URL.createObjectURL(f);
+
+  const vid = $('sourceVideo');
+  vid.src = state.videoUrl;
+  vid.onloadedmetadata = () => {
+    state.duration = vid.duration;
+    $('fileName').textContent = f.name;
+    $('fileSize').textContent = (f.size / 1024 / 1024).toFixed(1) + ' MB · ' + fmtTime(vid.duration);
+    show('videoMetaCard');
+    $('uploadZone').style.display = 'none';
+  };
+};
+
+// Drag & drop
+$('uploadZone').addEventListener('dragover', e => { e.preventDefault(); $('uploadZone').classList.add('dragover'); });
+$('uploadZone').addEventListener('dragleave', () => $('uploadZone').classList.remove('dragover'));
+$('uploadZone').addEventListener('drop', e => {
+  e.preventDefault();
+  $('uploadZone').classList.remove('dragover');
+  if (e.dataTransfer.files[0]) {
+    $('fileInput').files = e.dataTransfer.files;
+    handleFile({ target: $('fileInput') });
+  }
+});
+
+window.resetApp = function() {
+  state.file = null;
+  state.videoUrl = null;
+  state.segments = [];
+  state.shorts = [];
+  $('fileInput').value = '';
+  $('sourceVideo').src = '';
+  hide('videoMetaCard');
+  hide('progressCard');
+  hide('shortsSection');
+  $('uploadZone').style.display = 'block';
+  $('shortsList').innerHTML = '';
+  $('progressStatus').innerHTML = 'Czekam na start...';
+  $('progressFill').style.width = '0%';
+};
+
+// ===== PIPELINE =====
+window.startPipeline = async function() {
+  if (!state.file) return;
+  if (!state.isPro && state.freeUses <= 0) { showProModal(); return; }
+
+  $('startBtn').disabled = true;
+  $('startBtn').textContent = '⏳ Pracuję...';
+  show('progressCard');
+
+  try {
+    // Step 1: Load model
+    setProgress('Ładowanie modelu AI (40MB)...', 5);
+    addStatus('🧠 Ładowanie Whisper AI...');
+
+    if (!state.transcriber) {
+      state.transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny', {
+        dtype: 'q8',
+        progress_callback: p => {
+          if (p.status === 'progress') {
+            const pct = Math.round(p.loaded / p.total * 30);
+            setProgress('Ładowanie modelu AI...', 5 + pct);
+          }
+        }
+      });
+    }
+    state.modelLoaded = true;
+    addStatus('<span class="ok">✓ Model AI załadowany</span>');
+
+    // Step 2: Extract audio
+    setProgress('Ekstrakcja audio z wideo...', 35);
+    addStatus('🔊 Ekstrakcja audio...');
+    const audioData = await extractAudio(state.file);
+    addStatus('<span class="ok">✓ Audio gotowe (' + audioData.length + ' próbek)</span>');
+
+    // Step 3: Transcribe
+    setProgress('Transkrypcja mowy (to trwa)...', 45);
+    addStatus('📝 Transkrypcja przez AI...');
+    const result = await state.transcriber(audioData, {
+      return_timestamps: true,
+      chunk_length_s: 30,
+      stride_length_s: 5,
+      language: 'pl'
+    });
+    addStatus('<span class="ok">✓ Transkrypcja zakończona</span>');
+
+    // Parse chunks
+    state.segments = parseWhisperResult(result);
+    addStatus('<span class="ok">✓ Znaleziono ' + state.segments.length + ' segmentów</span>');
+
+    // Step 4: Analyze hooks
+    setProgress('Analiza viral hooków...', 75);
+    addStatus('🎯 Analiza hooków...');
+    const analyzed = state.segments.map((s, i) => analyzeSegment(s, i, state.segments.length));
+    state.shorts = groupIntoShorts(analyzed);
+    addStatus('<span class="ok">✓ Wybrano ' + state.shorts.length + ' najlepszych shortów</span>');
+
+    // Step 5: Render
+    setProgress('Gotowe!', 100);
+    if (!state.isPro) {
+      state.freeUses--;
+      localStorage.setItem('vc_render_free', state.freeUses);
+    }
+
+    renderShorts();
+    show('shortsSection');
+    toast('✅ Znaleziono ' + state.shorts.length + ' shortów! Kliknij RENDERUJ by wygenerować pliki.');
+
+  } catch (err) {
+    console.error(err);
+    addStatus('<span class="err">❌ Błąd: ' + err.message + '</span>');
+    toast('❌ ' + err.message);
+    setProgress('Błąd', 0);
+  } finally {
+    $('startBtn').disabled = false;
+    $('startBtn').textContent = '🚀 START — TRANSSKRYPCJA + ANALIZA';
+  }
+};
+
+// ===== AUDIO EXTRACTION =====
+async function extractAudio(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  const audioContext = new AudioContext({ sampleRate: 16000 });
+  const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+  // Convert to mono Float32Array at 16kHz
+  const numChannels = audioBuffer.numberOfChannels;
+  const length = audioBuffer.length;
+  const sampleRate = audioBuffer.sampleRate;
+
+  // Get mono data
+  const channelData = numChannels > 1 
+    ? mixChannels(audioBuffer) 
+    : audioBuffer.getChannelData(0);
+
+  // Resample to 16kHz if needed
+  if (sampleRate !== 16000) {
+    return resample(channelData, sampleRate, 16000);
+  }
+  return channelData;
+}
+
+function mixChannels(buffer) {
+  const len = buffer.length;
+  const out = new Float32Array(len);
+  for (let i = 0; i < len; i++) {
+    let sum = 0;
+    for (let c = 0; c < buffer.numberOfChannels; c++) {
+      sum += buffer.getChannelData(c)[i];
+    }
+    out[i] = sum / buffer.numberOfChannels;
+  }
+  return out;
+}
+
+function resample(input, inRate, outRate) {
+  const ratio = inRate / outRate;
+  const outLen = Math.floor(input.length / ratio);
+  const out = new Float32Array(outLen);
+  for (let i = 0; i < outLen; i++) {
+    const pos = i * ratio;
+    const idx = Math.floor(pos);
+    const frac = pos - idx;
+    const a = input[idx] || 0;
+    const b = input[idx + 1] || a;
+    out[i] = a + (b - a) * frac;
+  }
+  return out;
+}
+
+// ===== WHISPER PARSING =====
+function parseWhisperResult(result) {
+  const chunks = result.chunks || [];
+  const segments = [];
+
+  for (const chunk of chunks) {
+    const text = chunk.text.trim();
+    if (!text) continue;
+    const ts = chunk.timestamp;
+    if (Array.isArray(ts) && ts.length === 2) {
+      segments.push({
+        time: ts[0],
+        endTime: ts[1],
+        text: text,
+        words: text.split(/\s+/).length,
+        duration: ts[1] - ts[0]
+      });
+    }
+  }
+  return segments;
+}
+
+// ===== HOOK AI =====
+const HOOKS = {
+  questions: ['?', 'dlaczego', 'jak ', 'co jeśli', 'czy wiesz', 'zastanawiasz', 'po co', 'kiedy', 'gdzie', 'kim', 'ile', 'czy '],
+  urgency: ['teraz', 'natychmiast', 'dzisiaj', 'ostatni', 'pilne', 'szybko', 'już', 'zaraz', 'limit'],
+  numbers: ['1','2','3','4','5','6','7','8','9','0','milion','tysiąc','procent',' razy','x ','zł','eur','$','€'],
+  controversy: ['błąd','porażka','kłamstwo','oszustwo','nie działa','strata','głupi','źle','tragedia','skandal','prawda','ukrywają','nie chcą','zakazane','wstyd','dramat'],
+  emotions: ['szok','wow','niesamowite','genialny','perfekcyjny','koszmar','wstrząs','emocje','płakać','śm
