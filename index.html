@@ -4,14 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#000000">
-<title>ViralCut PRO RENDER — Auto Shorts Maker</title>
+<title>ViralCut ULTIMATE — Auto Shorts Maker</title>
 <style>
 :root {
   --bg: #000000;
   --surface: #0a0a0a;
   --surface-2: #141414;
+  --surface-3: #1e1e1e;
   --text: #ffffff;
-  --muted: #777777;
+  --muted: #888888;
   --accent: #ff0050;
   --accent-2: #00f2ea;
   --success: #00ff88;
@@ -20,7 +21,7 @@
 }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: var(--bg);
   color: var(--text);
   line-height: 1.5;
@@ -29,7 +30,7 @@ body {
 }
 .header {
   background: linear-gradient(180deg, rgba(255,0,80,0.08), transparent);
-  padding: 32px 20px 20px;
+  padding: 28px 16px 16px;
   text-align: center;
   border-bottom: 1px solid #1a1a1a;
   position: sticky;
@@ -38,27 +39,94 @@ body {
   z-index: 100;
 }
 .header h1 {
-  font-size: 34px;
+  font-size: 30px;
   font-weight: 900;
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  letter-spacing: -1.5px;
+  letter-spacing: -1px;
 }
-.header p { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 2.5px; margin-top: 6px; }
+.header p { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-top: 4px; }
 
 .container { padding: 16px; max-width: 680px; margin: 0 auto; }
 
-/* Upload Zone */
+/* Mode Switch */
+.mode-switch {
+  display: flex;
+  background: var(--surface);
+  border: 1px solid #222;
+  border-radius: var(--radius);
+  padding: 6px;
+  margin-bottom: 16px;
+  gap: 6px;
+}
+.mode-btn {
+  flex: 1;
+  padding: 14px;
+  background: transparent;
+  border: none;
+  border-radius: 18px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.mode-btn.active {
+  background: linear-gradient(135deg, rgba(255,0,80,0.25), rgba(0,242,234,0.1));
+  color: var(--text);
+  box-shadow: 0 4px 20px rgba(255,0,80,0.15);
+}
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid #1f1f1f;
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.card-title {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Inputs */
+input[type="text"], input[type="url"] {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid #333;
+  border-radius: 16px;
+  padding: 16px;
+  color: var(--text);
+  font-size: 16px;
+  outline: none;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+input[type="text"]:focus, input[type="url"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,0,80,0.1); }
+
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+/* Upload */
 .upload-zone {
   border: 2px dashed #333;
   border-radius: var(--radius);
-  padding: 48px 24px;
+  padding: 40px 20px;
   text-align: center;
   background: var(--surface);
   transition: all 0.3s;
   cursor: pointer;
-  margin-bottom: 16px;
   position: relative;
   overflow: hidden;
 }
@@ -66,64 +134,10 @@ body {
   border-color: var(--accent);
   background: rgba(255,0,80,0.04);
 }
-.upload-zone .icon { font-size: 48px; margin-bottom: 12px; opacity: 0.6; }
-.upload-zone h3 { font-size: 18px; margin-bottom: 8px; }
+.upload-zone .icon { font-size: 44px; margin-bottom: 10px; opacity: 0.6; }
+.upload-zone h3 { font-size: 17px; margin-bottom: 6px; }
 .upload-zone p { font-size: 13px; color: var(--muted); }
 .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-
-/* Video Preview */
-.video-preview-card {
-  background: var(--surface);
-  border: 1px solid #1f1f1f;
-  border-radius: var(--radius);
-  padding: 16px;
-  margin-bottom: 16px;
-  display: none;
-}
-.video-preview-card.active { display: block; }
-.video-meta { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
-.video-thumb {
-  width: 100px; height: 56px; border-radius: 12px; background: #222; object-fit: cover;
-}
-.video-info h4 { font-size: 15px; font-weight: 700; line-height: 1.3; }
-.video-info p { font-size: 12px; color: var(--muted); margin-top: 4px; }
-
-/* Progress */
-.progress-card {
-  background: var(--surface);
-  border: 1px solid #1f1f1f;
-  border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 16px;
-  display: none;
-}
-.progress-card.active { display: block; }
-.progress-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-.progress-title { font-size: 15px; font-weight: 700; }
-.progress-percent { font-size: 14px; font-weight: 800; color: var(--accent-2); }
-.progress-bar-wrap {
-  height: 8px;
-  background: #222;
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 12px;
-}
-.progress-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  width: 0%;
-  transition: width 0.4s ease;
-  border-radius: 4px;
-}
-.progress-status { font-size: 13px; color: var(--muted); line-height: 1.5; }
-.progress-status .ok { color: var(--success); }
-.progress-status .warn { color: var(--warning); }
-.progress-status .err { color: #ff4444; }
 
 /* Buttons */
 .btn {
@@ -143,7 +157,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 .btn:active { transform: scale(0.97); }
 .btn:disabled { opacity: 0.35; cursor: not-allowed; }
@@ -153,7 +167,63 @@ body {
   color: var(--text);
 }
 .btn-success { background: linear-gradient(135deg, var(--success), #00aa55); }
-.btn-warning { background: linear-gradient(135deg, var(--warning), #cc8800); color: #000; }
+.btn-yt { background: linear-gradient(135deg, #ff0000, #cc0000); }
+
+/* Progress */
+.progress-card {
+  background: var(--surface);
+  border: 1px solid #1f1f1f;
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+  display: none;
+}
+.progress-card.active { display: block; }
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.progress-title { font-size: 15px; font-weight: 700; }
+.progress-percent { font-size: 15px; font-weight: 800; color: var(--accent-2); }
+.progress-bar-wrap {
+  height: 8px;
+  background: #222;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  width: 0%;
+  transition: width 0.4s ease;
+  border-radius: 4px;
+}
+.progress-log {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  max-height: 120px;
+  overflow-y: auto;
+}
+.progress-log .ok { color: var(--success); }
+.progress-log .warn { color: var(--warning); }
+.progress-log .err { color: #ff4444; }
+
+/* Video Meta */
+.video-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.video-thumb {
+  width: 100px; height: 56px; border-radius: 12px; background: #222; object-fit: cover;
+}
+.video-info h4 { font-size: 15px; font-weight: 700; line-height: 1.3; }
+.video-info p { font-size: 12px; color: var(--muted); margin-top: 4px; }
 
 /* Short Cards */
 .shorts-section { display: none; }
@@ -188,14 +258,9 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
-.short-rank {
-  font-size: 28px;
-  font-weight: 900;
-  color: #222;
-  line-height: 1;
-}
+.short-rank { font-size: 26px; font-weight: 900; color: #222; line-height: 1; }
 .viral-score {
   background: rgba(255,0,80,0.12);
   color: var(--accent);
@@ -234,24 +299,22 @@ body {
   border: 1px solid #333;
 }
 
-/* Render Preview */
-.render-preview {
+/* Preview */
+.preview-box {
   width: 100%;
-  max-width: 240px;
+  max-width: 220px;
   aspect-ratio: 9/16;
-  margin: 0 auto 16px;
+  margin: 0 auto 14px;
   border-radius: 16px;
   overflow: hidden;
   background: #000;
   border: 1px solid #333;
   position: relative;
 }
-.render-preview video, .render-preview canvas {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.preview-box iframe, .preview-box video {
+  width: 100%; height: 100%; border: none; object-fit: cover;
 }
-.render-overlay {
+.preview-overlay {
   position: absolute;
   inset: 0;
   display: flex;
@@ -267,38 +330,27 @@ body {
 .action-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
 }
-.action-grid .btn { margin-bottom: 0; padding: 14px; font-size: 13px; }
+.action-grid .btn { padding: 14px; font-size: 13px; margin-bottom: 0; }
 
-/* Render Progress */
-.render-progress {
-  margin-top: 12px;
-  padding: 12px;
-  background: #0f0f0f;
+/* SRT Box */
+.srt-box {
+  background: #000;
+  border: 1px solid #333;
   border-radius: 12px;
-  border: 1px solid #222;
-  display: none;
-}
-.render-progress.active { display: block; }
-.render-progress-bar {
-  height: 6px;
-  background: #222;
-  border-radius: 3px;
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-.render-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  width: 0%;
-  transition: width 0.3s;
-}
-.render-progress-text {
+  padding: 14px;
+  font-family: monospace;
   font-size: 12px;
-  color: var(--muted);
-  text-align: center;
+  color: #aaa;
+  max-height: 160px;
+  overflow-y: auto;
+  line-height: 1.8;
+  margin-top: 12px;
+  display: none;
+  white-space: pre-wrap;
 }
+.srt-box.show { display: block; }
 
 /* Toast */
 .toast {
@@ -357,72 +409,108 @@ body {
 }
 .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 12px; }
 
-.hidden { display: none !important; }
-
-/* Warning box */
-.warn-box {
-  background: rgba(255,170,0,0.08);
-  border: 1px solid rgba(255,170,0,0.3);
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 16px;
+/* Speed badge */
+.speed-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0,242,234,0.1);
+  color: var(--accent-2);
+  padding: 8px 14px;
+  border-radius: 50px;
   font-size: 13px;
-  color: var(--warning);
-  line-height: 1.5;
+  font-weight: 700;
+  margin-bottom: 12px;
+  border: 1px solid rgba(0,242,234,0.2);
 }
-.warn-box strong { color: #ffcc00; }
+
+.hidden { display: none !important; }
 </style>
 </head>
 <body>
 
 <header class="header">
-  <h1>⚡ ViralCut PRO</h1>
-  <p>Wrzuć wideo → AI zrobi shorty z napisami</p>
+  <h1>⚡ ViralCut ULTIMATE</h1>
+  <p>Auto Shorts Maker — YouTube + Local</p>
 </header>
 
 <div class="container">
 
-  <!-- WARNINGS -->
-  <div class="warn-box" id="warnBox">
-    <strong>📱 Wymagania:</strong> Chrome na Androidzie. Pierwsze uruchomienie pobiera model AI (~40MB). Transkrypcja 10min filmu = ~5-8min czekania. Renderowanie trwa tyle co długość shorta. Telefon musi być podłączony do ładowarki.
-  </div>
-
   <!-- PRO BANNER -->
   <div id="proBanner" class="pro-banner">
     <h3>🔒 Odblokuj PRO</h3>
-    <p>Więcej shortów, renderowanie bez limitów, wyższa jakość 1080p</p>
+    <p>YouTube: nieograniczone shorty. Local: 1080p, WebGPU speed</p>
     <button class="btn" onclick="showProModal()">AKTYWUJ PRO</button>
   </div>
 
-  <!-- UPLOAD -->
-  <div class="upload-zone" id="uploadZone">
-    <input type="file" id="fileInput" accept="video/*" onchange="handleFile(event)">
-    <div class="icon">🎬</div>
-    <h3>Dotknij by wybrać wideo</h3>
-    <p>MP4, MOV, WEBM — max 30 minut</p>
+  <!-- MODE SWITCH -->
+  <div class="mode-switch">
+    <button class="mode-btn active" id="btnLocal" onclick="setMode('local')">📁 Plik lokalny</button>
+    <button class="mode-btn" id="btnYoutube" onclick="setMode('youtube')">🔗 YouTube Link</button>
   </div>
 
-  <!-- VIDEO META -->
-  <div class="video-preview-card" id="videoMetaCard">
-    <div class="video-meta">
-      <video id="sourceVideo" style="width:100px;height:56px;border-radius:12px;object-fit:cover;background:#222;" muted playsinline></video>
-      <div class="video-info">
-        <h4 id="fileName">video.mp4</h4>
-        <p id="fileSize">0 MB · 0:00</p>
+  <!-- LOCAL MODE -->
+  <div id="localMode">
+    <div class="card">
+      <div class="speed-badge">🐢 Wolniejsze — AI liczy audio na telefonie</div>
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="fileInput" accept="video/*" onchange="handleFile(event)">
+        <div class="icon">🎬</div>
+        <h3>Dotknij by wybrać wideo</h3>
+        <p>Max ~5 minut dla szybkości · MP4, MOV, WEBM</p>
+      </div>
+      <div id="localMeta" class="hidden">
+        <div class="video-meta" style="margin-top:16px;">
+          <video id="sourceVideo" style="width:100px;height:56px;border-radius:12px;object-fit:cover;background:#222;" muted playsinline></video>
+          <div class="video-info">
+            <h4 id="fileName">video.mp4</h4>
+            <p id="fileSize">0 MB · 0:00</p>
+          </div>
+        </div>
+        <button class="btn" id="localStartBtn" onclick="startLocal()">🚀 START TRANSSKRYPCJA</button>
+        <button class="btn btn-secondary" onclick="resetLocal()">🗑 Wyczyść</button>
       </div>
     </div>
-    <button class="btn" id="startBtn" onclick="startPipeline()">🚀 START — TRANSSKRYPCJA + ANALIZA</button>
-    <button class="btn btn-secondary" onclick="resetApp()">🗑 Wyczyść</button>
+  </div>
+
+  <!-- YOUTUBE MODE -->
+  <div id="youtubeMode" class="hidden">
+    <div class="card">
+      <div class="speed-badge">⚡ Błyskawiczne — pobiera gotowe napisy z YouTube</div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;">Link do YouTube</label>
+        <input type="url" id="ytLinkInput" placeholder="https://youtube.com/watch?v=... lub youtu.be/...">
+        <div class="hint">
+          📋 Wklej link do filmu który ma napisy (większość ma auto-napisy).<br>
+          ⚡ Działa z filmami 1 sekundy do 10 godzin. Telefon możesz wyłączyć po kliknięciu — proces trwa 10-30 sekund.
+        </div>
+      </div>
+      <button class="btn btn-yt" id="ytStartBtn" onclick="startYouTube()">⚡ POBIERZ NAPISY + ANALIZA</button>
+    </div>
   </div>
 
   <!-- PROGRESS -->
   <div class="progress-card" id="progressCard">
     <div class="progress-header">
-      <span class="progress-title" id="progressTitle">Inicjalizacja...</span>
+      <span class="progress-title" id="progressTitle">Przygotowanie...</span>
       <span class="progress-percent" id="progressPercent">0%</span>
     </div>
     <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
-    <div class="progress-status" id="progressStatus">Czekam na start...</div>
+    <div class="progress-log" id="progressLog">Czekam na start...</div>
+  </div>
+
+  <!-- YT VIDEO PREVIEW -->
+  <div id="ytPreviewCard" class="card hidden">
+    <div class="video-meta">
+      <img id="ytThumb" src="" class="video-thumb" style="display:none;">
+      <div class="video-info">
+        <h4 id="ytTitle">Tytuł wideo</h4>
+        <p id="ytChannel">Kanał</p>
+      </div>
+    </div>
+    <div class="preview-box" style="aspect-ratio:16/9;max-width:100%;">
+      <iframe id="ytFrame" src="" allowfullscreen style="width:100%;height:100%;border:none;"></iframe>
+    </div>
   </div>
 
   <!-- SHORTS RESULTS -->
@@ -434,7 +522,7 @@ body {
     <div id="shortsList"></div>
   </div>
 
-  <!-- RENDERING AREA (hidden canvas) -->
+  <!-- HIDDEN CANVAS FOR LOCAL RENDER -->
   <canvas id="renderCanvas" style="display:none;"></canvas>
 
 </div>
@@ -457,15 +545,16 @@ import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17
 
 // ===== STATE =====
 const state = {
-  isPro: localStorage.getItem('vc_render_pro') === 'true',
-  freeUses: parseInt(localStorage.getItem('vc_render_free') || '1'),
+  isPro: localStorage.getItem('vc_ultimate_pro') === 'true',
+  mode: 'local',
   file: null,
   videoUrl: null,
   duration: 0,
   segments: [],
   shorts: [],
   transcriber: null,
-  modelLoaded: false
+  ytVideoId: null,
+  ytMeta: null
 };
 
 // ===== DOM =====
@@ -477,35 +566,42 @@ const hide = id => $(id).classList.remove('active');
 function init() {
   if (state.isPro) {
     $('proBanner').classList.add('hidden');
-    $('warnBox').innerHTML = '<strong>✅ PRO Aktywne:</strong> Nieograniczone renderowanie, 1080p, wszystkie funkcje.';
-    $('warnBox').style.borderColor = 'rgba(0,255,136,0.3)';
-    $('warnBox').style.background = 'rgba(0,255,136,0.05)';
-    $('warnBox').style.color = 'var(--success)';
   }
+  setMode('local');
 }
 
-// ===== FILE HANDLING =====
+// ===== MODE SWITCH =====
+window.setMode = function(mode) {
+  state.mode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  $(mode === 'local' ? 'btnLocal' : 'btnYoutube').classList.add('active');
+  $('localMode').classList.toggle('hidden', mode !== 'local');
+  $('youtubeMode').classList.toggle('hidden', mode !== 'youtube');
+  hide('shortsSection');
+  hide('progressCard');
+  hide('ytPreviewCard');
+};
+
+// ===== LOCAL FILE =====
 window.handleFile = function(e) {
   const f = e.target.files[0];
   if (!f) return;
-  if (!f.type.startsWith('video/')) { toast('❌ To nie jest plik wideo'); return; }
-  if (f.size > 2 * 1024 * 1024 * 1024) { toast('❌ Max 2GB'); return; }
+  if (!f.type.startsWith('video/')) { toast('❌ To nie jest wideo'); return; }
+  if (f.size > 500 * 1024 * 1024) { toast('❌ Max 500MB w trybie lokalnym'); return; }
 
   state.file = f;
   state.videoUrl = URL.createObjectURL(f);
-
   const vid = $('sourceVideo');
   vid.src = state.videoUrl;
   vid.onloadedmetadata = () => {
     state.duration = vid.duration;
     $('fileName').textContent = f.name;
-    $('fileSize').textContent = (f.size / 1024 / 1024).toFixed(1) + ' MB · ' + fmtTime(vid.duration);
-    show('videoMetaCard');
+    $('fileSize').textContent = (f.size/1024/1024).toFixed(1) + ' MB · ' + fmtTime(vid.duration);
+    $('localMeta').classList.remove('hidden');
     $('uploadZone').style.display = 'none';
   };
 };
 
-// Drag & drop
 $('uploadZone').addEventListener('dragover', e => { e.preventDefault(); $('uploadZone').classList.add('dragover'); });
 $('uploadZone').addEventListener('dragleave', () => $('uploadZone').classList.remove('dragover'));
 $('uploadZone').addEventListener('drop', e => {
@@ -517,131 +613,221 @@ $('uploadZone').addEventListener('drop', e => {
   }
 });
 
-window.resetApp = function() {
-  state.file = null;
-  state.videoUrl = null;
-  state.segments = [];
-  state.shorts = [];
-  $('fileInput').value = '';
-  $('sourceVideo').src = '';
-  hide('videoMetaCard');
-  hide('progressCard');
-  hide('shortsSection');
-  $('uploadZone').style.display = 'block';
-  $('shortsList').innerHTML = '';
-  $('progressStatus').innerHTML = 'Czekam na start...';
-  $('progressFill').style.width = '0%';
+window.resetLocal = function() {
+  state.file = null; state.videoUrl = null; state.segments = []; state.shorts = [];
+  $('fileInput').value = ''; $('sourceVideo').src = '';
+  $('localMeta').classList.add('hidden'); $('uploadZone').style.display = 'block';
+  hide('progressCard'); hide('shortsSection'); $('shortsList').innerHTML = '';
 };
 
-// ===== PIPELINE =====
-window.startPipeline = async function() {
-  if (!state.file) return;
-  if (!state.isPro && state.freeUses <= 0) { showProModal(); return; }
+// ===== YOUTUBE =====
+function extractYtId(url) {
+  const m = url.match(/(?:v=|\/embed\/|\/v\/|youtu\.be\/|\/shorts\/)([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
 
-  $('startBtn').disabled = true;
-  $('startBtn').textContent = '⏳ Pracuję...';
+window.startYouTube = async function() {
+  const url = $('ytLinkInput').value.trim();
+  const id = extractYtId(url);
+  if (!id) { toast('❌ Nieprawidłowy link YouTube'); return; }
+
+  state.ytVideoId = id;
+  $('ytStartBtn').disabled = true;
+  $('ytStartBtn').textContent = '⏳ Pobieram...';
+  show('progressCard');
+  setProgress('Łączenie z YouTube...', 5);
+  log('🌐 Łączę z YouTube...');
+
+  try {
+    // 1. Get metadata via oEmbed
+    setProgress('Pobieranie metadanych...', 15);
+    try {
+      const metaRes = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`);
+      const meta = await metaRes.json();
+      state.ytMeta = { title: meta.title, author: meta.author_name, thumb: meta.thumbnail_url };
+      log(`<span class="ok">✓ Wideo: ${meta.title}</span>`);
+    } catch(e) {
+      state.ytMeta = { title: 'YouTube Video', author: '', thumb: `https://img.youtube.com/vi/${id}/mqdefault.jpg` };
+    }
+
+    // 2. Fetch captions via proxy
+    setProgress('Szukam napisów...', 30);
+    log('🔍 Szukam napisów na YouTube...');
+
+    const proxy = 'https://corsproxy.io/?';
+    const pageRes = await fetch(proxy + encodeURIComponent(`https://www.youtube.com/watch?v=${id}`));
+    if (!pageRes.ok) throw new Error('Brak dostępu do YouTube');
+
+    const html = await pageRes.text();
+    const match = html.match(/ytInitialPlayerResponse\s*=\s*({.+?});<\/script>/);
+    if (!match) throw new Error('Nie znaleziono danych wideo');
+
+    let data;
+    try { data = JSON.parse(match[1]); }
+    catch(e) {
+      const m2 = html.match(/ytInitialPlayerResponse\s*=\s*({.+?});/);
+      if (!m2) throw new Error('Błąd parsowania');
+      data = JSON.parse(m2[1]);
+    }
+
+    const tracks = data?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
+    if (!tracks || !tracks.length) {
+      throw new Error('To wideo nie ma napisów. Spróbuj inne wideo lub użyj trybu Lokalnego.');
+    }
+
+    // Prefer Polish, fallback to first
+    let track = tracks.find(t => t.languageCode === 'pl');
+    if (!track) track = tracks.find(t => t.languageCode === 'en');
+    if (!track) track = tracks[0];
+
+    const langName = track.name?.simpleText || track.languageCode;
+    log(`<span class="ok">✓ Napisy: ${langName}</span>`);
+
+    // 3. Fetch transcript XML
+    setProgress('Pobieranie transkrypcji...', 50);
+    log('📥 Pobieram transkrypcję...');
+
+    const xmlRes = await fetch(proxy + encodeURIComponent(track.baseUrl));
+    if (!xmlRes.ok) throw new Error('Nie udało się pobrać napisów');
+
+    const xmlText = await xmlRes.text();
+    state.segments = parseTranscriptXML(xmlText);
+    log(`<span class="ok">✓ ${state.segments.length} segmentów tekstu</span>`);
+
+    // 4. Analyze
+    setProgress('Analiza hooków...', 75);
+    log('🎯 Analiza viral hooków...');
+    const analyzed = state.segments.map((s, i) => analyzeSegment(s, i, state.segments.length));
+    state.shorts = groupIntoShorts(analyzed, true);
+    log(`<span class="ok">✓ Wybrano ${state.shorts.length} shortów</span>`);
+
+    // 5. Show results
+    setProgress('Gotowe!', 100);
+    renderYtPreview();
+    renderShorts(true);
+    show('shortsSection');
+    toast(`✅ Znaleziono ${state.shorts.length} shortów z YouTube!`);
+
+  } catch (err) {
+    console.error(err);
+    log(`<span class="err">❌ Błąd: ${err.message}</span>`);
+    toast('❌ ' + err.message);
+    setProgress('Błąd', 0);
+  } finally {
+    $('ytStartBtn').disabled = false;
+    $('ytStartBtn').textContent = '⚡ POBIERZ NAPISY + ANALIZA';
+  }
+};
+
+function parseTranscriptXML(xml) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(xml, 'text/xml');
+  const texts = doc.querySelectorAll('text');
+  const segs = [];
+  texts.forEach(node => {
+    const start = parseFloat(node.getAttribute('start') || '0');
+    const dur = parseFloat(node.getAttribute('dur') || '3');
+    let text = node.textContent || '';
+    text = text.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'");
+    if (text.trim()) {
+      segs.push({ time: start, endTime: start + dur, text: text.trim(), words: text.trim().split(/\s+/).filter(w=>w).length, duration: dur });
+    }
+  });
+  return segs;
+}
+
+function renderYtPreview() {
+  show('ytPreviewCard');
+  $('ytTitle').textContent = state.ytMeta?.title || 'YouTube Video';
+  $('ytChannel').textContent = state.ytMeta?.author || '';
+  if (state.ytMeta?.thumb) {
+    $('ytThumb').src = state.ytMeta.thumb;
+    $('ytThumb').style.display = 'block';
+  }
+  $('ytFrame').src = `https://www.youtube.com/embed/${state.ytVideoId}`;
+}
+
+// ===== LOCAL PIPELINE =====
+window.startLocal = async function() {
+  if (!state.file) return;
+
+  $('localStartBtn').disabled = true;
+  $('localStartBtn').textContent = '⏳ Pracuję...';
   show('progressCard');
 
   try {
-    // Step 1: Load model
-    setProgress('Ładowanie modelu AI (40MB)...', 5);
-    addStatus('🧠 Ładowanie Whisper AI...');
+    setProgress('Ładowanie AI...', 5);
+    log('🧠 Ładowanie Whisper AI...');
 
     if (!state.transcriber) {
       state.transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny', {
         dtype: 'q8',
         progress_callback: p => {
           if (p.status === 'progress') {
-            const pct = Math.round(p.loaded / p.total * 30);
+            const pct = Math.round(p.loaded / p.total * 25);
             setProgress('Ładowanie modelu AI...', 5 + pct);
           }
         }
       });
     }
-    state.modelLoaded = true;
-    addStatus('<span class="ok">✓ Model AI załadowany</span>');
+    log('<span class="ok">✓ Model AI gotowy</span>');
 
-    // Step 2: Extract audio
-    setProgress('Ekstrakcja audio z wideo...', 35);
-    addStatus('🔊 Ekstrakcja audio...');
+    setProgress('Ekstrakcja audio...', 35);
+    log('🔊 Ekstrakcja audio...');
     const audioData = await extractAudio(state.file);
-    addStatus('<span class="ok">✓ Audio gotowe (' + audioData.length + ' próbek)</span>');
+    log(`<span class="ok">✓ Audio: ${audioData.length} próbek</span>`);
 
-    // Step 3: Transcribe
-    setProgress('Transkrypcja mowy (to trwa)...', 45);
-    addStatus('📝 Transkrypcja przez AI...');
+    setProgress('Transkrypcja (to trwa)...', 50);
+    log('📝 Transkrypcja mowy...');
     const result = await state.transcriber(audioData, {
       return_timestamps: true,
       chunk_length_s: 30,
       stride_length_s: 5,
       language: 'pl'
     });
-    addStatus('<span class="ok">✓ Transkrypcja zakończona</span>');
+    log('<span class="ok">✓ Transkrypcja zakończona</span>');
 
-    // Parse chunks
     state.segments = parseWhisperResult(result);
-    addStatus('<span class="ok">✓ Znaleziono ' + state.segments.length + ' segmentów</span>');
+    log(`<span class="ok">✓ ${state.segments.length} segmentów</span>`);
 
-    // Step 4: Analyze hooks
-    setProgress('Analiza viral hooków...', 75);
-    addStatus('🎯 Analiza hooków...');
+    setProgress('Analiza hooków...', 80);
+    log('🎯 Analiza hooków...');
     const analyzed = state.segments.map((s, i) => analyzeSegment(s, i, state.segments.length));
-    state.shorts = groupIntoShorts(analyzed);
-    addStatus('<span class="ok">✓ Wybrano ' + state.shorts.length + ' najlepszych shortów</span>');
+    state.shorts = groupIntoShorts(analyzed, false);
+    log(`<span class="ok">✓ ${state.shorts.length} shortów</span>`);
 
-    // Step 5: Render
     setProgress('Gotowe!', 100);
-    if (!state.isPro) {
-      state.freeUses--;
-      localStorage.setItem('vc_render_free', state.freeUses);
-    }
-
-    renderShorts();
+    renderShorts(false);
     show('shortsSection');
-    toast('✅ Znaleziono ' + state.shorts.length + ' shortów! Kliknij RENDERUJ by wygenerować pliki.');
+    toast(`✅ ${state.shorts.length} shortów gotowych!`);
 
   } catch (err) {
     console.error(err);
-    addStatus('<span class="err">❌ Błąd: ' + err.message + '</span>');
+    log(`<span class="err">❌ ${err.message}</span>`);
     toast('❌ ' + err.message);
-    setProgress('Błąd', 0);
   } finally {
-    $('startBtn').disabled = false;
-    $('startBtn').textContent = '🚀 START — TRANSSKRYPCJA + ANALIZA';
+    $('localStartBtn').disabled = false;
+    $('localStartBtn').textContent = '🚀 START TRANSSKRYPCJA';
   }
 };
 
-// ===== AUDIO EXTRACTION =====
 async function extractAudio(file) {
   const arrayBuffer = await file.arrayBuffer();
   const audioContext = new AudioContext({ sampleRate: 16000 });
   const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-
-  // Convert to mono Float32Array at 16kHz
-  const numChannels = audioBuffer.numberOfChannels;
-  const length = audioBuffer.length;
-  const sampleRate = audioBuffer.sampleRate;
-
-  // Get mono data
-  const channelData = numChannels > 1 
+  const channelData = audioBuffer.numberOfChannels > 1 
     ? mixChannels(audioBuffer) 
     : audioBuffer.getChannelData(0);
-
-  // Resample to 16kHz if needed
-  if (sampleRate !== 16000) {
-    return resample(channelData, sampleRate, 16000);
-  }
-  return channelData;
+  return audioBuffer.sampleRate !== 16000 
+    ? resample(channelData, audioBuffer.sampleRate, 16000) 
+    : channelData;
 }
 
 function mixChannels(buffer) {
-  const len = buffer.length;
-  const out = new Float32Array(len);
+  const len = buffer.length, out = new Float32Array(len);
   for (let i = 0; i < len; i++) {
     let sum = 0;
-    for (let c = 0; c < buffer.numberOfChannels; c++) {
-      sum += buffer.getChannelData(c)[i];
-    }
+    for (let c = 0; c < buffer.numberOfChannels; c++) sum += buffer.getChannelData(c)[i];
     out[i] = sum / buffer.numberOfChannels;
   }
   return out;
@@ -652,36 +838,24 @@ function resample(input, inRate, outRate) {
   const outLen = Math.floor(input.length / ratio);
   const out = new Float32Array(outLen);
   for (let i = 0; i < outLen; i++) {
-    const pos = i * ratio;
-    const idx = Math.floor(pos);
-    const frac = pos - idx;
-    const a = input[idx] || 0;
-    const b = input[idx + 1] || a;
-    out[i] = a + (b - a) * frac;
+    const pos = i * ratio, idx = Math.floor(pos), frac = pos - idx;
+    out[i] = (input[idx] || 0) + ((input[idx+1] || input[idx] || 0) - (input[idx] || 0)) * frac;
   }
   return out;
 }
 
-// ===== WHISPER PARSING =====
 function parseWhisperResult(result) {
   const chunks = result.chunks || [];
-  const segments = [];
-
+  const segs = [];
   for (const chunk of chunks) {
     const text = chunk.text.trim();
     if (!text) continue;
     const ts = chunk.timestamp;
     if (Array.isArray(ts) && ts.length === 2) {
-      segments.push({
-        time: ts[0],
-        endTime: ts[1],
-        text: text,
-        words: text.split(/\s+/).length,
-        duration: ts[1] - ts[0]
-      });
+      segs.push({ time: ts[0], endTime: ts[1], text, words: text.split(/\s+/).length, duration: ts[1]-ts[0] });
     }
   }
-  return segments;
+  return segs;
 }
 
 // ===== HOOK AI =====
@@ -728,11 +902,11 @@ function analyzeSegment(seg, idx, total) {
   return { ...seg, score: Math.min(100, score), reasons: [...new Set(reasons)].slice(0, 3) };
 }
 
-function groupIntoShorts(segments) {
+function groupIntoShorts(segments, isYt) {
   const shorts = [];
   let current = [];
   let lastT = null;
-  const maxShorts = state.isPro ? 10 : 3;
+  const maxShorts = state.isPro ? (isYt ? 15 : 10) : (isYt ? 5 : 3);
   const maxDuration = state.isPro ? 60 : 45;
 
   for (let i = 0; i < segments.length; i++) {
@@ -748,7 +922,7 @@ function groupIntoShorts(segments) {
     lastT = seg.endTime || seg.time + 3;
 
     const dur = (current[current.length - 1].endTime || current[current.length - 1].time + 3) - current[0].time;
-    if (dur >= maxDuration || (next && next.time - seg.endTime > 5)) {
+    if (dur >= maxDuration || (next && next.time - (seg.endTime || seg.time + 3) > 5)) {
       if (current.length >= 2) shorts.push(finishShort(current));
       current = [];
     }
@@ -765,12 +939,11 @@ function finishShort(group) {
   const fullText = group.map(g => g.text).join(' ');
   const hookText = group.slice(0, Math.min(3, group.length)).map(g => g.text).join(' ');
   const avgScore = Math.round(group.reduce((a, b) => a + b.score, 0) / group.length);
-
   return { start, end, duration: Math.round(dur), hookText, fullText, score: avgScore, segments: group };
 }
 
 // ===== RENDER SHORTS UI =====
-function renderShorts() {
+function renderShorts(isYt) {
   $('shortsCount').textContent = state.shorts.length + ' znalezionych';
   const list = $('shortsList');
   list.innerHTML = '';
@@ -778,6 +951,22 @@ function renderShorts() {
   state.shorts.forEach((short, idx) => {
     const isHot = short.score >= 75;
     const hookDisplay = short.hookText.length > 90 ? short.hookText.substring(0, 90) + '...' : short.hookText;
+
+    let actions = '';
+    if (isYt) {
+      const cutterLink = `https://ytcutter.com/?v=${state.ytVideoId}&s=${Math.floor(short.start)}&e=${Math.ceil(short.end)}`;
+      actions = `
+        <a href="${cutterLink}" target="_blank" class="btn" style="text-decoration:none;">✂️ YT Cutter</a>
+        <button class="btn btn-secondary" onclick="generateSRT(${idx})">📝 SRT</button>
+        <button class="btn btn-secondary" onclick="copyTimestamp(${idx})">⏱ Czas</button>
+        <button class="btn btn-success" onclick="copyScript(${idx})">📋 Skrypt</button>
+      `;
+    } else {
+      actions = `
+        <button class="btn" onclick="renderLocalVideo(${idx})" id="renderBtn-${idx}">🎬 RENDERUJ</button>
+        <button class="btn btn-secondary" onclick="copyTimestamp(${idx})">⏱ Czas</button>
+      `;
+    }
 
     const div = document.createElement('div');
     div.className = 'short-card';
@@ -789,152 +978,107 @@ function renderShorts() {
       <div class="time-pill">⏱ ${fmtTime(short.start)} → ${fmtTime(short.end)} (${short.duration}s)</div>
       <div class="hook-text">"${hookDisplay}"</div>
 
-      <div class="render-preview" id="preview-${idx}">
-        <div class="render-overlay" id="overlay-${idx}">Gotowe do renderu</div>
+      ${isYt ? `
+      <div class="preview-box" style="aspect-ratio:16/9;max-width:100%;">
+        <iframe src="https://www.youtube.com/embed/${state.ytVideoId}?start=${Math.floor(short.start)}&end=${Math.ceil(short.end)}" allowfullscreen style="width:100%;height:100%;border:none;"></iframe>
       </div>
+      ` : `
+      <div class="preview-box" id="preview-${idx}">
+        <div class="preview-overlay" id="overlay-${idx}">Gotowe do renderu</div>
+      </div>
+      `}
 
-      <div class="action-grid">
-        <button class="btn" onclick="renderShortFile(${idx})" id="renderBtn-${idx}">🎬 RENDERUJ</button>
-        <button class="btn btn-secondary" onclick="copyHook(${idx})">📋 Kopiuj</button>
+      <div class="action-grid">${actions}</div>
+      <div class="srt-box" id="srt-${idx}"></div>
+      ${!isYt ? `
+      <div class="render-progress hidden" id="renderProgress-${idx}" style="margin-top:12px;padding:12px;background:#0f0f0f;border-radius:12px;border:1px solid #222;">
+        <div style="height:6px;background:#222;border-radius:3px;overflow:hidden;margin-bottom:8px;">
+          <div style="height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0%;transition:width 0.3s;" id="renderFill-${idx}"></div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);text-align:center;" id="renderText-${idx}">Renderowanie...</div>
       </div>
-
-      <div class="render-progress" id="renderProgress-${idx}">
-        <div class="render-progress-bar"><div class="render-progress-fill" id="renderFill-${idx}"></div></div>
-        <div class="render-progress-text" id="renderText-${idx}">Renderowanie...</div>
-      </div>
+      ` : ''}
     `;
     list.appendChild(div);
   });
 }
 
-// ===== RENDER VIDEO WITH SUBTITLES =====
-window.renderShortFile = async function(idx) {
+// ===== LOCAL VIDEO RENDER =====
+window.renderLocalVideo = async function(idx) {
   if (!state.isPro && idx > 0) { showProModal(); return; }
-
   const short = state.shorts[idx];
   const btn = $(`renderBtn-${idx}`);
   const progress = $(`renderProgress-${idx}`);
   const fill = $(`renderFill-${idx}`);
   const text = $(`renderText-${idx}`);
   const preview = $(`preview-${idx}`);
-  const overlay = $(`overlay-${idx}`);
 
-  btn.disabled = true;
-  btn.textContent = '⏳ Renderuję...';
-  progress.classList.add('active');
-  overlay.style.display = 'none';
+  btn.disabled = true; btn.textContent = '⏳ Renderuję...';
+  progress.classList.remove('hidden');
 
   try {
-    // Create offscreen video
     const video = document.createElement('video');
-    video.src = state.videoUrl;
-    video.muted = true;
-    video.playsInline = true;
-    video.crossOrigin = 'anonymous';
-    await new Promise((res, rej) => {
-      video.onloadeddata = res;
-      video.onerror = rej;
-      video.load();
-    });
+    video.src = state.videoUrl; video.muted = true; video.playsInline = true;
+    await new Promise((res, rej) => { video.onloadeddata = res; video.onerror = rej; video.load(); });
 
-    // Setup canvas
-    const isPro = state.isPro;
-    const W = isPro ? 1080 : 720;
-    const H = isPro ? 1920 : 1280;
+    const W = state.isPro ? 1080 : 720;
+    const H = state.isPro ? 1920 : 1280;
     const canvas = $('renderCanvas');
-    canvas.width = W;
-    canvas.height = H;
+    canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext('2d');
 
-    // Create preview element
     const previewCanvas = document.createElement('canvas');
-    previewCanvas.width = W;
-    previewCanvas.height = H;
-    previewCanvas.style.width = '100%';
-    previewCanvas.style.height = '100%';
-    preview.innerHTML = '';
-    preview.appendChild(previewCanvas);
+    previewCanvas.width = W; previewCanvas.height = H;
+    previewCanvas.style.width = '100%'; previewCanvas.style.height = '100%';
+    preview.innerHTML = ''; preview.appendChild(previewCanvas);
     const pCtx = previewCanvas.getContext('2d');
 
-    // MediaRecorder
     const stream = canvas.captureStream(30);
     let mimeType = 'video/webm;codecs=vp9';
-    if (!MediaRecorder.isTypeSupported(mimeType)) {
-      mimeType = 'video/webm;codecs=vp8';
-      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
-    }
-    const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: isPro ? 8000000 : 4000000 });
+    if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm;codecs=vp8';
+    if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
+    const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: state.isPro ? 8000000 : 4000000 });
     const chunks = [];
     recorder.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    const blobPromise = new Promise(resolve => { recorder.onstop = () => resolve(new Blob(chunks, { type: mimeType })); });
 
-    const blobPromise = new Promise(resolve => {
-      recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: mimeType });
-        resolve(blob);
-      };
-    });
-
-    // Prepare subtitles
     const subSegments = prepareSubtitles(short);
-
-    // Start
     recorder.start(100);
     video.currentTime = short.start;
     await new Promise(r => video.addEventListener('seeked', r, { once: true }));
 
-    // Wake lock
     let wakeLock = null;
     try { wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
 
-    // Render loop
-    const endTime = short.end;
-    const startTime = performance.now();
-    const expectedDuration = (endTime - short.start) * 1000;
-
     video.play();
-
     const drawLoop = () => {
       const now = video.currentTime;
-      const progress = Math.min(1, (now - short.start) / (endTime - short.start));
+      const progress = Math.min(1, (now - short.start) / (short.end - short.start));
       fill.style.width = Math.round(progress * 100) + '%';
       text.textContent = 'Renderowanie... ' + Math.round(progress * 100) + '%';
 
-      if (now >= endTime || video.ended || video.paused) {
-        recorder.stop();
-        video.pause();
-        if (wakeLock) wakeLock.release();
-        return;
+      if (now >= short.end || video.ended || video.paused) {
+        recorder.stop(); video.pause(); if (wakeLock) wakeLock.release(); return;
       }
-
-      // Draw to main canvas
       drawFrame(ctx, video, W, H, now, subSegments);
-      // Mirror to preview
       pCtx.drawImage(canvas, 0, 0);
-
       requestAnimationFrame(drawLoop);
     };
-
     requestAnimationFrame(drawLoop);
 
-    // Wait for completion
     const blob = await blobPromise;
-
-    // Download
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = `ViralCut_Short_${idx + 1}_${short.score}pts.webm`;
-    a.click();
+    a.href = url; a.download = `ViralCut_Short_${idx+1}_${short.score}pts.webm`; a.click();
 
     fill.style.width = '100%';
     text.textContent = '✅ Gotowe! Pobieranie...';
     text.style.color = 'var(--success)';
     btn.textContent = '✅ POBRANO';
     btn.classList.add('btn-success');
-    toast('✅ Short #' + (idx + 1) + ' gotowy!');
+    toast('✅ Short #' + (idx+1) + ' gotowy!');
 
   } catch (err) {
-    console.error(err);
     text.textContent = '❌ Błąd: ' + err.message;
     text.style.color = '#ff4444';
     btn.textContent = '❌ Błąd';
@@ -943,15 +1087,12 @@ window.renderShortFile = async function(idx) {
 };
 
 function prepareSubtitles(short) {
-  // Split full text into time-based chunks
   const words = short.fullText.split(/\s+/);
   const totalTime = short.end - short.start;
   const wordsPerChunk = Math.max(3, Math.floor(words.length / Math.ceil(totalTime / 2.5)));
   const segments = [];
-
   let wordIdx = 0;
   const segDuration = totalTime / Math.ceil(words.length / wordsPerChunk);
-
   for (let t = short.start; t < short.end && wordIdx < words.length; t += segDuration) {
     const chunk = words.slice(wordIdx, wordIdx + wordsPerChunk).join(' ');
     segments.push({ start: t, end: t + segDuration, text: chunk });
@@ -961,125 +1102,141 @@ function prepareSubtitles(short) {
 }
 
 function drawFrame(ctx, video, W, H, currentTime, subSegments) {
-  // Clear
-  ctx.fillStyle = '#000';
-  ctx.fillRect(0, 0, W, H);
-
-  // Draw video (center crop for 9:16)
-  const vW = video.videoWidth || W;
-  const vH = video.videoHeight || H;
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+  const vW = video.videoWidth || W, vH = video.videoHeight || H;
   const scale = Math.max(W / vW, H / vH);
-  const dw = vW * scale;
-  const dh = vH * scale;
-  const dx = (W - dw) / 2;
-  const dy = (H - dh) / 2;
+  const dw = vW * scale, dh = vH * scale, dx = (W - dw) / 2, dy = (H - dh) / 2;
   ctx.drawImage(video, dx, dy, dw, dh);
-
-  // Find current subtitle
   const sub = subSegments.find(s => currentTime >= s.start && currentTime < s.end);
-  if (sub && sub.text) {
-    drawTikTokText(ctx, sub.text, W / 2, H * 0.82, W);
-  }
+  if (sub && sub.text) drawTikTokText(ctx, sub.text, W / 2, H * 0.82, W);
 }
 
 function drawTikTokText(ctx, text, x, y, maxWidth) {
   ctx.save();
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-
-  // Word wrap
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   const fontSize = Math.floor(maxWidth * 0.065);
   ctx.font = `900 ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
   const words = text.split(' ');
   const lines = [];
   let currentLine = words[0];
-
   for (let i = 1; i < words.length; i++) {
     const testLine = currentLine + ' ' + words[i];
-    if (ctx.measureText(testLine).width < maxWidth * 0.88) {
-      currentLine = testLine;
-    } else {
-      lines.push(currentLine);
-      currentLine = words[i];
-    }
+    if (ctx.measureText(testLine).width < maxWidth * 0.88) currentLine = testLine;
+    else { lines.push(currentLine); currentLine = words[i]; }
   }
   lines.push(currentLine);
-
   const lineHeight = fontSize * 1.25;
   const totalHeight = lines.length * lineHeight;
   let startY = y - totalHeight / 2 + lineHeight / 2;
-
   lines.forEach((line, i) => {
     const ly = startY + i * lineHeight;
-
-    // Black outline (stroke)
-    ctx.lineWidth = fontSize * 0.08;
-    ctx.strokeStyle = '#000000';
-    ctx.lineJoin = 'round';
+    ctx.lineWidth = fontSize * 0.08; ctx.strokeStyle = '#000000'; ctx.lineJoin = 'round';
     ctx.strokeText(line, x, ly);
-
-    // White fill
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(line, x, ly);
-
-    // Slight shadow
-    ctx.shadowColor = 'rgba(0,0,0,0.8)';
-    ctx.shadowBlur = 8;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 4;
-    ctx.fillText(line, x, ly);
-    ctx.shadowColor = 'transparent';
+    ctx.fillStyle = '#ffffff'; ctx.fillText(line, x, ly);
+    ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 8; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 4;
+    ctx.fillText(line, x, ly); ctx.shadowColor = 'transparent';
   });
-
   ctx.restore();
 }
 
-// ===== UTILS =====
-function fmtTime(sec) {
-  const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
-  return m + ':' + String(s).padStart(2, '0');
-}
+// ===== SRT / UTILS =====
+window.generateSRT = function(idx) {
+  if (!state.isPro && idx > 0) { showProModal(); return; }
+  const short = state.shorts[idx];
+  let srt = '', counter = 1;
+  const sentences = short.fullText.match(/[^.!?]+[.!?]+/g) || [short.fullText];
+  sentences.forEach((sent, i) => {
+    const start = short.start + (i * 2.8);
+    const end = start + 3.2;
+    srt += `${counter}
+${fmtSRT(start)} --> ${fmtSRT(end)}
+${sent.trim()}
 
-function setProgress(text, pct) {
-  $('progressTitle').textContent = text;
-  $('progressPercent').textContent = pct + '%';
-  $('progressFill').style.width = pct + '%';
-}
-
-function addStatus(html) {
-  const el = $('progressStatus');
-  el.innerHTML += html + '<br>';
-  el.scrollTop = el.scrollHeight;
-}
-
-function toast(msg) {
-  const t = $('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3500);
-}
-
-window.copyHook = function(idx) {
-  const s = state.shorts[idx];
-  navigator.clipboard.writeText(s.hookText).then(() => toast('📋 Hook skopiowany!'));
+`;
+    counter++;
+  });
+  const box = $(`srt-${idx}`);
+  box.textContent = srt; box.classList.add('show');
+  navigator.clipboard.writeText(srt).then(() => toast('📋 SRT skopiowane!'));
 };
 
-// ===== PRO SYSTEM =====
+window.copyTimestamp = function(idx) {
+  const s = state.shorts[idx];
+  const title = state.ytMeta?.title || state.file?.name || 'Wideo';
+  const text = `ViralCut #${idx+1}
+${title}
+Start: ${fmtTime(s.start)}
+End: ${fmtTime(s.end)}
+Hook: "${s.hookText}"`;
+  navigator.clipboard.writeText(text).then(() => toast('📋 Skopiowano!'));
+};
+
+window.copyScript = function(idx) {
+  const s = state.shorts[idx];
+  const title = state.ytMeta?.title || 'Wideo';
+  const cutter = state.ytVideoId ? `https://ytcutter.com/?v=${state.ytVideoId}&s=${Math.floor(s.start)}&e=${Math.ceil(s.end)}` : 'Użyj wideo lokalnego';
+  const script = `🎬 VIRALCUT — Short #${idx+1}
+Wideo: ${title}
+Czas: ${fmtTime(s.start)} - ${fmtTime(s.end)} (${s.duration}s)
+
+🪝 HOOK:
+"${s.hookText}"
+
+✂️ WYCINANIE:
+${cutter}
+
+📝 NAPISY:
+Wygeneruj SRT w apce i importuj do CapCut
+
+🚀 GOTOWE DO TIKTOK!
+`.trim();
+  navigator.clipboard.writeText(script).then(() => toast('📋 Skrypt skopiowany!'));
+};
+
+// ===== PRO =====
 window.showProModal = function() { $('proModal').classList.add('active'); };
 window.closeProModal = function() { $('proModal').classList.remove('active'); };
 window.activatePro = function() {
   const code = $('proCode').value.trim().toUpperCase();
   if (code === 'VIRAL2026' || code.length > 8) {
     state.isPro = true;
-    localStorage.setItem('vc_render_pro', 'true');
+    localStorage.setItem('vc_ultimate_pro', 'true');
     $('proBanner').classList.add('hidden');
     closeProModal();
     toast('🔓 PRO aktywowane!');
-    init();
   } else {
     toast('❌ Nieprawidłowy kod');
   }
 };
+
+// ===== UTILS =====
+function fmtTime(sec) {
+  const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+  return m + ':' + String(s).padStart(2, '0');
+}
+function fmtSRT(sec) {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = Math.floor(sec % 60);
+  const ms = Math.floor((sec % 1) * 1000);
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')},${String(ms).padStart(3,'0')}`;
+}
+function setProgress(text, pct) {
+  $('progressTitle').textContent = text;
+  $('progressPercent').textContent = pct + '%';
+  $('progressFill').style.width = pct + '%';
+}
+function log(html) {
+  const el = $('progressLog');
+  el.innerHTML += html + '<br>';
+  el.scrollTop = el.scrollHeight;
+}
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
 
 $('proModal').addEventListener('click', e => { if (e.target === $('proModal')) closeProModal(); });
 
