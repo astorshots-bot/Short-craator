@@ -3,181 +3,462 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XAUUSD Precision Terminal & Proximity Radar</title>
+<title>XAUUSD Predictor - Live Gold Analysis</title>
 <style>
-:root[data-theme="dark"]{--bg:#0d1117;--bg-card:#161b22;--border:#30363d;--text:#c9d1d9;--text-dim:#8b949e;--text-bright:#f0f6fc;--green:#3fb950;--red:#f85149;--blue:#58a6ff;--yellow:#d29922;--purple:#a371f7}
-:root[data-theme="light"]{--bg:#fff;--bg-card:#f6f8fa;--border:#d0d7de;--text:#24292f;--text-dim:#656d76;--text-bright:#1f2328;--green:#1a7f37;--red:#cf222e;--blue:#0969da;--yellow:#9a6700;--purple:#8250df}
+:root[data-theme="dark"]{--bg:#0d1117;--bg-card:#161b22;--bg-hover:#1c2128;--border:#30363d;--text:#c9d1d9;--text-dim:#8b949e;--text-bright:#f0f6fc;--green:#3fb950;--red:#f85149;--blue:#58a6ff;--yellow:#d29922;--purple:#a371f7;--orange:#f0883e;--cyan:#39d0d8}
+:root[data-theme="light"]{--bg:#fff;--bg-card:#f6f8fa;--bg-hover:#f3f4f6;--border:#d0d7de;--text:#24292f;--text-dim:#656d76;--text-bright:#1f2328;--green:#1a7f37;--red:#cf222e;--blue:#0969da;--yellow:#9a6700;--purple:#8250df;--orange:#bc4c00;--cyan:#1b7e74}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;transition:background .3s,color .3s}
 .container{max-width:1440px;margin:0 auto;padding:16px}
-header{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);margin-bottom:20px}
-header h1{font-size:20px;font-weight:600;color:var(--text-bright);display:flex;align-items:center;gap:10px}
-.gold-icon{width:30px;height:30px;background:linear-gradient(135deg,#ffd700,#ffaa00);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#1a1a1a}
-.theme-toggle{padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);color:var(--text);cursor:pointer;font-size:12px}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);margin-bottom:20px;flex-wrap:wrap;gap:12px}
+header h1{font-size:22px;font-weight:600;color:var(--text-bright);display:flex;align-items:center;gap:10px}
+.gold-icon{width:32px;height:32px;background:linear-gradient(135deg,#ffd700,#ffaa00);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#1a1a1a;box-shadow:0 0 10px rgba(255,170,0,.3)}
+.theme-toggle{padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);color:var(--text);cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.theme-toggle:hover{border-color:var(--blue)}
+.last-update{color:var(--text-dim);font-size:12px;display:flex;align-items:center;gap:8px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.2)}100%{opacity:1;transform:scale(1)}}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-bottom:14px}
-.card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px}
-.card-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-dim);margin-bottom:10px}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px;transition:border-color .2s,box-shadow .2s}
+.card:hover{border-color:var(--blue);box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.card-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-dim);margin-bottom:10px;display:flex;align-items:center;gap:6px}
 .big-number{font-size:32px;font-weight:700;color:var(--text-bright);font-variant-numeric:tabular-nums}
-.badge{display:inline-block;padding:6px 14px;border-radius:6px;font-size:13px;font-weight:700;text-transform:uppercase}
-.badge-buy{background:rgba(63,185,80,0.15);color:var(--green);border:1px solid var(--green)}
-.badge-sell{background:rgba(248,81,73,0.15);color:var(--red);border:1px solid var(--red)}
-.badge-wait{background:rgba(139,148,158,0.15);color:var(--text-dim);border:1px solid var(--border)}
-.badge-near{background:rgba(210,153,34,0.15);color:var(--yellow);border:1px solid var(--yellow)}
-.level-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
-.level-row:last-child{border-bottom:none}
-.val-res{color:var(--red);font-weight:600}
-.val-sup{color:var(--green);font-weight:600}
-.val-entry{color:var(--blue);font-weight:600}
-.progress-bar{width:100%;height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin-top:8px;border:1px solid var(--border)}
-.progress-fill{height:100%;border-radius:4px;transition:width .4s ease, background .4s ease}
+.sub-info{font-size:12px;color:var(--text-dim);margin-top:4px}
+.signal-badge{display:inline-block;padding:5px 14px;border-radius:20px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.signal-buy{background:rgba(47,185,80,.15);color:var(--green);border:1px solid rgba(47,185,80,.3)}
+.signal-sell{background:rgba(248,81,73,.15);color:var(--red);border:1px solid rgba(248,81,73,.3)}
+.signal-wait{background:rgba(139,148,158,.15);color:var(--text-dim);border:1px solid rgba(139,148,158,.3)}
+.signal-strong-buy{background:rgba(47,185,80,.25);color:var(--green);border:2px solid var(--green);box-shadow:0 0 12px rgba(47,185,80,.2)}
+.signal-strong-sell{background:rgba(248,81,73,.25);color:var(--red);border:2px solid var(--red);box-shadow:0 0 12px rgba(248,81,73,.2)}
+.levels-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.level-row{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--bg);border-radius:6px;font-size:13px}
+.level-label{color:var(--text-dim);font-size:12px}
+.level-value{font-weight:600;font-variant-numeric:tabular-nums;font-size:13px}
+.level-value.res{color:var(--red)}.level-value.sup{color:var(--green)}.level-value.pp{color:var(--blue)}.level-value.liq{color:var(--yellow)}.level-value.fib{color:var(--purple)}
+.chart-wrap{position:relative;width:100%;height:480px;background:var(--bg);border-radius:8px;overflow:hidden;margin-top:10px;border:1px solid var(--border)}
+.chart-legend{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;font-size:11px}
+.legend-item{display:flex;align-items:center;gap:5px;color:var(--text-dim);cursor:pointer;user-select:none}
+.legend-item.hidden{opacity:.4}
+.legend-dot{width:9px;height:9px;border-radius:2px}
+.trend-indicator{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600}
+.trend-up{background:rgba(47,185,80,.12);color:var(--green)}.trend-down{background:rgba(248,81,73,.12);color:var(--red)}.trend-neutral{background:rgba(139,148,158,.12);color:var(--text-dim)}
+.trend-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.trend-row:last-child{border-bottom:none}
+.events-table{width:100%;border-collapse:collapse;font-size:12px}
+.events-table th{text-align:left;padding:9px 10px;color:var(--text-dim);font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+.events-table td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text)}
+.events-table tr:hover td{background:var(--bg-hover)}
+.impact-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px}
+.impact-high{background:var(--red);box-shadow:0 0 5px rgba(248,81,73,.4)}.impact-medium{background:var(--yellow)}.impact-low{background:var(--green)}
+.progress-bar{width:100%;height:5px;background:var(--bg);border-radius:3px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;border-radius:3px;transition:width .5s ease}
+.score-display{display:flex;align-items:center;gap:12px;margin-top:10px}
+.score-circle{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;border:3px solid}
+.score-green{border-color:var(--green);color:var(--green)}.score-red{border-color:var(--red);color:var(--red)}.score-gray{border-color:var(--text-dim);color:var(--text-dim)}
+.zone-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;margin-right:4px;margin-bottom:4px}
+.zone-liquidity{background:rgba(210,153,34,.15);color:var(--yellow)}.zone-fvg{background:rgba(163,113,247,.15);color:var(--purple)}.zone-ob{background:rgba(88,166,255,.15);color:var(--blue)}.zone-bos{background:rgba(57,208,216,.15);color:var(--cyan)}
+.tab-bar{display:flex;gap:4px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:0;overflow-x:auto}
+.tab-btn{padding:7px 14px;background:none;border:none;color:var(--text-dim);font-size:12px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-family:inherit;white-space:nowrap}
+.tab-btn:hover{color:var(--text)}.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.indicators-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.indicator-box{background:var(--bg);padding:10px;border-radius:8px;text-align:center}
+.indicator-value{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.indicator-label{font-size:10px;color:var(--text-dim);margin-top:3px;text-transform:uppercase;letter-spacing:.3px}
+.rr-badge{display:inline-block;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;background:rgba(88,166,255,.12);color:var(--blue)}
+.full-width{grid-column:1/-1}
+.analysis-text{padding:10px 0;font-size:13px;line-height:1.7;color:var(--text)}
+.analysis-text h3{color:var(--text-bright);margin-bottom:10px;font-size:15px}
+.analysis-text p{margin-bottom:10px}
+.analysis-text strong{color:var(--text-bright)}
 .footer{text-align:center;padding:20px 0;color:var(--text-dim);font-size:11px;border-top:1px solid var(--border);margin-top:20px}
+.refresh-status{font-size:11px;color:var(--text-dim);margin-left:auto}
+@media(max-width:768px){.grid{grid-template-columns:1fr}.levels-grid{grid-template-columns:1fr}.indicators-grid{grid-template-columns:1fr}.big-number{font-size:26px}header{flex-direction:column;align-items:flex-start}.chart-wrap{height:360px}}
 </style>
 </head>
 <body>
 <div class="container">
 <header>
-<h1><span class="gold-icon">Au</span> XAUUSD Precision Radar</h1>
-<div>
-<span id="syncTime" style="font-size:12px;color:var(--text-dim);margin-right:10px">Ładowanie...</span>
+<h1><span class="gold-icon">Au</span> XAUUSD Predictor</h1>
+<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+<span class="last-update"><span class="live-dot"></span> <span id="lastUpdate">2026-08-04 | D1</span></span>
+<span class="refresh-status" id="refreshStatus">Auto-refresh: ON (60s)</span>
 <button class="theme-toggle" onclick="toggleTheme()">🌓 Tryb</button>
 </div>
 </header>
 
 <div class="grid">
-<!-- CENA LIVE -->
 <div class="card">
-<div class="card-title">Cena Aktualna (XAU/USD)</div>
-<div class="big-number" id="livePrice">---</div>
-<div style="font-size:12px;color:var(--text-dim);margin-top:6px">Status: Monitorowanie odległości stref</div>
+<div class="card-title">Aktualna cena XAU/USD</div>
+<div class="big-number" id="currentPrice">4063.1</div>
+<div class="sub-info">ATH: <span style="color:var(--green)">5506.5</span> | 52W Low: <span style="color:var(--red)">2287.7</span> | ATR(14): <span id="atrVal">61.74</span></div>
 </div>
-
-<!-- RADAR BLISKOŚCI SETUPU -->
 <div class="card">
-<div class="card-title">Radar Bliskości Wejścia (Proximity Meter)</div>
-<div style="margin:6px 0;">
-<span id="proximityBadge" class="badge badge-wait">ANALIZA ODLEGLOŚCI...</span>
+<div class="card-title">Rekomendacja algorytmu</div>
+<div style="display:flex;align-items:center;gap:10px;margin-top:2px;flex-wrap:wrap;">
+<span class="signal-badge signal-buy" id="signalBadge">BUY</span>
+<span class="rr-badge" id="rrBadge">RR: 0.6</span>
 </div>
-<div style="font-size:12px;margin-top:6px;display:flex;justify-content:space-between;">
-<span>Gotowość setupu:</span>
-<strong id="proximityPercent">0%</strong>
+<div class="score-display">
+<div class="score-circle score-green" id="scoreCircle">4</div>
+<div style="flex:1;">
+<div style="font-size:12px;color:var(--text-dim);">Punktacja (max 9)</div>
+<div class="progress-bar"><div class="progress-fill" id="scoreBar" style="width:72.22222222222221%;background:var(--green)"></div></div>
 </div>
-<div class="progress-bar">
-<div id="proximityProgress" class="progress-fill" style="width:0%; background:var(--text-dim)"></div>
 </div>
-<div id="proximityDetails" style="font-size:11px;color:var(--text-dim);margin-top:6px">---</div>
 </div>
 </div>
 
 <div class="grid">
-<!-- WARTOŚCI TRANSAKCJI -->
 <div class="card">
-<div class="card-title">Wyliczone Parametry Zlecenia</div>
-<div class="level-row"><span>Targetowana Strefa Wejścia</span><span class="val-entry" id="targetZone">---</span></div>
-<div class="level-row"><span>Pozostały dystans do strefy</span><span style="font-weight:600" id="distancePips">---</span></div>
-<div class="level-row"><span>Projektowany Stop Loss</span><span class="val-res" id="calcSL">---</span></div>
-<div class="level-row"><span>Projektowany Take Profit</span><span class="val-sup" id="calcTP">---</span></div>
+<div class="card-title">Poziomy kluczowe</div>
+<div class="levels-grid">
+<div class="level-row"><span class="level-label">Entry</span><span class="level-value pp" id="entryLevel">4063.1</span></div>
+<div class="level-row"><span class="level-label">Stop Loss</span><span class="level-value res" id="slLevel">4031.34</span></div>
+<div class="level-row"><span class="level-label">Take Profit 1</span><span class="level-value sup" id="tp1Level">4082.04</span></div>
+<div class="level-row"><span class="level-label">Take Profit 2</span><span class="level-value sup" id="tp2Level">4100.97</span></div>
+<div class="level-row"><span class="level-label">Pivot Point</span><span class="level-value pp" id="ppLevel">4050.27</span></div>
+<div class="level-row"><span class="level-label">R1</span><span class="level-value res" id="r1Level">4082.04</span></div>
+<div class="level-row"><span class="level-label">R2</span><span class="level-value res" id="r2Level">4100.97</span></div>
+<div class="level-row"><span class="level-label">S1</span><span class="level-value sup" id="s1Level">4031.34</span></div>
+<div class="level-row"><span class="level-label">S2</span><span class="level-value sup" id="s2Level">3999.57</span></div>
+<div class="level-row"><span class="level-label">Liq Above</span><span class="level-value liq" id="liqALevel">5506.5</span></div>
+<div class="level-row"><span class="level-label">Liq Below</span><span class="level-value liq" id="liqBLevel">2474.5</span></div>
+<div class="level-row"><span class="level-label">VWAP</span><span class="level-value pp" id="vwapLevel">3535.99</span></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title">Wskazniki techniczne</div>
+<div class="indicators-grid">
+<div class="indicator-box"><div class="indicator-value" style="color:var(--green)" id="rsiVal">57.8</div><div class="indicator-label">RSI (14)</div></div>
+<div class="indicator-box"><div class="indicator-value" style="color:var(--green)" id="macdHVal">16.31</div><div class="indicator-label">MACD Hist</div></div>
+<div class="indicator-box"><div class="indicator-value" style="color:var(--green)" id="macdVal">-26.77</div><div class="indicator-label">MACD</div></div>
+<div class="indicator-box"><div class="indicator-value" id="adxVal">18.5</div><div class="indicator-label">ADX (RANGE)</div></div>
+<div class="indicator-box"><div class="indicator-value" id="bbuVal">4073.16</div><div class="indicator-label">BB Upper</div></div>
+<div class="indicator-box"><div class="indicator-value" id="bblVal">3889.41</div><div class="indicator-label">BB Lower</div></div>
+<div class="indicator-box"><div class="indicator-value" id="stochVal">95.1</div><div class="indicator-label">Stoch %K</div></div>
+<div class="indicator-box"><div class="indicator-value" style="color:var(--green)" id="momVal">71.7</div><div class="indicator-label">Momentum</div></div>
+</div>
+</div>
 </div>
 
-<!-- INSTRUKCJA DLA SPEKULANTA -->
+<div class="grid">
 <div class="card">
-<div class="card-title">Jak używać Radaru?</div>
-<div style="font-size:12px;line-height:1.7;color:var(--text)">
-<div>• <strong>0% - 60%:</strong> Cena głęboko w środku zakresu. Zamiast gapić się w wykres, możesz odejść od komputera.</div>
-<div>• <strong>60% - 85%:</strong> Rynek zmierza w stronę płynności. Warto zerkać na interwał M15.</div>
-<div>• <strong>85% - 100%:</strong> Strefa reakcji! Bądź gotowy na egzekucję zlecenia.</div>
+<div class="card-title">Trend wielointerwałowy</div>
+<div class="trend-row"><span style="font-weight:600;font-size:13px;">D1 (Dzienny)</span><span class="trend-indicator trend-bullish">▲ BULLISH</span></div>
+<div class="trend-row"><span style="font-weight:600;font-size:13px;">W1 (Tygodniowy)</span><span class="trend-indicator trend-neutral">— NEUTRAL</span></div>
+<div class="trend-row"><span style="font-weight:600;font-size:13px;">MN (Miesięczny)</span><span class="trend-indicator trend-bearish">▼ BEARISH</span></div>
+<div class="trend-row" style="border-top:2px solid var(--border);margin-top:6px;padding-top:10px;">
+<span style="font-weight:700;font-size:15px;">Dominujący kierunek</span>
+<span class="trend-indicator trend-up" style="font-size:15px;padding:5px 14px;">▲ UP</span>
+</div>
+</div>
+<div class="card">
+<div class="card-title">Strefy Smart Money</div>
+<div style="margin-bottom:10px;">
+<div style="font-size:11px;color:var(--text-dim);margin-bottom:4px;">Liquidity Zones</div>
+<div><span class="zone-tag zone-liquidity">Above: 5506.5</span><span class="zone-tag zone-liquidity">Below: 2474.5</span></div>
+</div>
+<div style="margin-bottom:10px;">
+<div style="font-size:11px;color:var(--text-dim);margin-bottom:4px;">Fair Value Gaps</div>
+<div><span class="zone-tag zone-fvg">Bull FVG: 3934.64 - 4011.94</span><span class="zone-tag zone-fvg">Bear FVG: 3932.94 - 3935.14</span></div>
+</div>
+<div>
+<div style="font-size:11px;color:var(--text-dim);margin-bottom:4px;">Order Blocks</div>
+<div><span class="zone-tag zone-ob">Bull OB: 3918.94 - 3985.74</span><span class="zone-tag zone-ob">Bear OB: 3979.94 - 4046.34</span></div>
+</div>
+</div>
+</div>
+
+<div class="card full-width">
+<div class="tab-bar">
+<button class="tab-btn active" onclick="switchTab('chart',this)">Wykres</button>
+<button class="tab-btn" onclick="switchTab('events',this)">Wydarzenia</button>
+<button class="tab-btn" onclick="switchTab('analysis',this)">Analiza</button>
+</div>
+
+<div id="tab-chart" class="tab-panel active">
+<div class="chart-wrap" id="chartWrap">
+<svg id="mainSvg" width="100%" height="100%" style="display:block;"></svg>
+</div>
+<div class="chart-legend">
+<div class="legend-item" data-series="sma20" onclick="toggleSeries('sma20')"><div class="legend-dot" style="background:var(--green)"></div>SMA20</div>
+<div class="legend-item" data-series="sma50" onclick="toggleSeries('sma50')"><div class="legend-dot" style="background:var(--blue)"></div>SMA50</div>
+<div class="legend-item" data-series="vwap" onclick="toggleSeries('vwap')"><div class="legend-dot" style="background:var(--purple)"></div>VWAP</div>
+<div class="legend-item" data-series="liq" onclick="toggleSeries('liq')"><div class="legend-dot" style="background:var(--yellow)"></div>Liquidity</div>
+<div class="legend-item" data-series="rs" onclick="toggleSeries('rs')"><div class="legend-dot" style="background:var(--red)"></div>R/S</div>
+<div class="legend-item" data-series="ichi" onclick="toggleSeries('ichi')"><div class="legend-dot" style="background:var(--cyan)"></div>Ichimoku</div>
+</div>
+</div>
+
+<div id="tab-events" class="tab-panel">
+<table class="events-table">
+<thead><tr><th>Data</th><th>Godzina</th><th>Wydarzenie</th><th>Wpływ</th><th>Prognoza</th><th>Poprzednie</th></tr></thead>
+<tbody id="eventsBody"></tbody>
+</table>
+</div>
+
+<div id="tab-analysis" class="tab-panel">
+<div class="analysis-text">
+<h3>Algorytmiczna analiza XAUUSD</h3>
+<p><strong>Scenariusz bazowy:</strong> Cena złota (4063.1) znajduje się w konsolidacji po głębokiej korekcie z ATH 5506.5. Aktualny kierunek to <strong>UP</strong>, wspierany przez wzrostowy trend dzienny.</p>
+<p><strong>Strefy płynności:</strong> Najbliższa strefa płynności powyżej ceny: <strong>5506.5</strong> (sell-side liquidity). Poniżej: <strong>2474.5</strong> (buy-side liquidity). Cena może dążyć do wybicia tych stref przed kontynuacją.</p>
+<p><strong>Wskaźniki:</strong> RSI (57.8) w strefie neutralnej. MACD histogram (16.31) - dodatni, sygnał wzrostowy. ADX (18.5) - RANGE.</p>
+<p><strong>Rekomendacja:</strong> BUY. Entry: 4063.1, SL: 4031.34, TP1: 4082.04, TP2: 4100.97. Risk/Reward: 0.6.</p>
+<p><strong>Interwał:</strong> D1 (dzienny) jest optymalny dla tego setupu. Dla potwierdzenia wejścia można zejść na H4.</p>
+<p style="color:var(--text-dim);margin-top:14px;font-size:11px;">⚠️ To narzędzie edukacyjne. Nie stanowi porady inwestycyjnej. Zawsze zarządzaj ryzykiem (max 1-2% kapitału na pozycję) i używaj stop-loss.</p>
 </div>
 </div>
 </div>
 
 <div class="footer">
-XAUUSD Precision Radar | Silnik monitorowania odległości od stref rynkowych
+XAUUSD Predictor v2.0 | Live Spot Price + Auto-refresh | Smart Money + Ichimoku + MTF | Dane: Yahoo Finance / Fawaz Ahmed Currency API
 </div>
 </div>
 
 <script>
-function toggleTheme() {
-    const html = document.documentElement;
-    html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-}
+const ohlcData = [{"d": "2026-02-11", "o": 4970.2, "h": 5031.6, "l": 4961.6, "c": 4991.9, "v": 2681}, {"d": "2026-02-12", "o": 4980.7, "h": 4998.4, "l": 4812.3, "c": 4844.0, "v": 484}, {"d": "2026-02-13", "o": 4873.3, "h": 4964.2, "l": 4866.5, "c": 4942.3, "v": 232}, {"d": "2026-02-17", "o": 4940.3, "h": 4940.3, "l": 4768.1, "c": 4803.2, "v": 540}, {"d": "2026-02-18", "o": 4792.5, "h": 4907.3, "l": 4789.8, "c": 4906.8, "v": 544}, {"d": "2026-02-19", "o": 4935.0, "h": 4935.0, "l": 4896.2, "c": 4896.2, "v": 37}, {"d": "2026-02-20", "o": 4959.8, "h": 4993.0, "l": 4959.8, "c": 4979.6, "v": 134}, {"d": "2026-02-23", "o": 5040.6, "h": 5131.9, "l": 5040.6, "c": 5125.0, "v": 779}, {"d": "2026-02-24", "o": 5079.1, "h": 5079.3, "l": 5033.0, "c": 5076.1, "v": 88}, {"d": "2026-02-25", "o": 5086.3, "h": 5126.7, "l": 5086.3, "c": 5126.7, "v": 1772}, {"d": "2026-02-26", "o": 5097.5, "h": 5119.5, "l": 5064.2, "c": 5096.8, "v": 1520}, {"d": "2026-02-27", "o": 5107.0, "h": 5200.3, "l": 5097.0, "c": 5150.8, "v": 354}, {"d": "2026-03-02", "o": 5266.9, "h": 5325.3, "l": 5186.6, "c": 5214.7, "v": 72}, {"d": "2026-03-03", "o": 5219.0, "h": 5224.1, "l": 4943.3, "c": 5027.7, "v": 1776}, {"d": "2026-03-04", "o": 5051.0, "h": 5100.5, "l": 5037.5, "c": 5040.5, "v": 679}, {"d": "2026-03-05", "o": 5089.8, "h": 5089.8, "l": 4975.0, "c": 4985.6, "v": 1701}, {"d": "2026-03-06", "o": 5041.3, "h": 5066.4, "l": 4996.4, "c": 5066.4, "v": 148}, {"d": "2026-03-09", "o": 5075.3, "h": 5080.9, "l": 4998.0, "c": 5011.8, "v": 639}, {"d": "2026-03-10", "o": 5058.5, "h": 5150.0, "l": 5057.9, "c": 5150.0, "v": 4300}, {"d": "2026-03-11", "o": 5111.1, "h": 5111.6, "l": 5087.7, "c": 5087.7, "v": 633}, {"d": "2026-03-12", "o": 5057.5, "h": 5057.5, "l": 5036.1, "c": 5036.1, "v": 410}, {"d": "2026-03-13", "o": 5009.9, "h": 5037.3, "l": 4929.8, "c": 4972.8, "v": 479}, {"d": "2026-03-16", "o": 4921.9, "h": 4930.9, "l": 4914.3, "c": 4914.3, "v": 130}, {"d": "2026-03-17", "o": 4937.9, "h": 4937.9, "l": 4914.5, "c": 4921.3, "v": 239}, {"d": "2026-03-18", "o": 4869.9, "h": 4869.9, "l": 4742.0, "c": 4810.2, "v": 1461}, {"d": "2026-03-19", "o": 4750.6, "h": 4750.6, "l": 4474.3, "c": 4521.0, "v": 627}, {"d": "2026-03-20", "o": 4607.2, "h": 4607.2, "l": 4490.7, "c": 4490.7, "v": 235}, {"d": "2026-03-23", "o": 4273.3, "h": 4400.7, "l": 4021.1, "c": 4324.4, "v": 544}, {"d": "2026-03-24", "o": 4259.0, "h": 4319.6, "l": 4245.5, "c": 4319.6, "v": 378}, {"d": "2026-03-25", "o": 4469.3, "h": 4472.2, "l": 4462.1, "c": 4470.1, "v": 388}, {"d": "2026-03-26", "o": 4361.8, "h": 4363.4, "l": 4295.8, "c": 4295.8, "v": 1070}, {"d": "2026-03-27", "o": 4412.3, "h": 4412.3, "l": 4412.3, "c": 4412.3, "v": 74348}, {"d": "2026-03-30", "o": 4403.1, "h": 4499.4, "l": 4333.7, "c": 4446.3, "v": 10816}, {"d": "2026-03-31", "o": 4430.3, "h": 4604.4, "l": 4428.9, "c": 4567.9, "v": 4264}, {"d": "2026-04-01", "o": 4588.7, "h": 4709.4, "l": 4588.3, "c": 4703.5, "v": 1637}, {"d": "2026-04-02", "o": 4685.2, "h": 4704.7, "l": 4479.2, "c": 4571.8, "v": 0}, {"d": "2026-04-06", "o": 4576.4, "h": 4609.9, "l": 4525.3, "c": 4577.1, "v": 148}, {"d": "2026-04-07", "o": 4545.2, "h": 4596.6, "l": 4528.3, "c": 4577.4, "v": 327}, {"d": "2026-04-08", "o": 4680.3, "h": 4771.3, "l": 4659.1, "c": 4669.8, "v": 405}, {"d": "2026-04-09", "o": 4631.3, "h": 4719.4, "l": 4631.3, "c": 4712.5, "v": 1277}, {"d": "2026-04-10", "o": 4666.2, "h": 4711.3, "l": 4665.2, "c": 4682.2, "v": 812}, {"d": "2026-04-13", "o": 4624.3, "h": 4662.7, "l": 4624.3, "c": 4662.7, "v": 32}, {"d": "2026-04-14", "o": 4690.4, "h": 4761.9, "l": 4690.4, "c": 4745.3, "v": 288}, {"d": "2026-04-15", "o": 4763.9, "h": 4763.9, "l": 4718.3, "c": 4720.3, "v": 182}, {"d": "2026-04-16", "o": 4731.2, "h": 4731.2, "l": 4705.7, "c": 4705.7, "v": 805}, {"d": "2026-04-17", "o": 4691.9, "h": 4800.0, "l": 4687.5, "c": 4777.9, "v": 1902}, {"d": "2026-04-20", "o": 4714.2, "h": 4731.3, "l": 4690.3, "c": 4726.9, "v": 724}, {"d": "2026-04-21", "o": 4618.7, "h": 4625.3, "l": 4596.7, "c": 4618.7, "v": 1197}, {"d": "2026-04-22", "o": 4674.5, "h": 4674.5, "l": 4652.8, "c": 4652.8, "v": 765}, {"d": "2026-04-23", "o": 4631.8, "h": 4652.7, "l": 4625.4, "c": 4625.4, "v": 292}, {"d": "2026-04-24", "o": 4615.3, "h": 4642.6, "l": 4577.8, "c": 4642.6, "v": 45}, {"d": "2026-04-27", "o": 4627.9, "h": 4631.4, "l": 4595.7, "c": 4595.7, "v": 538}, {"d": "2026-04-28", "o": 4601.2, "h": 4601.2, "l": 4511.8, "c": 4511.8, "v": 2660}, {"d": "2026-04-29", "o": 4518.9, "h": 4521.9, "l": 4436.0, "c": 4465.5, "v": 507}, {"d": "2026-04-30", "o": 4482.2, "h": 4557.0, "l": 4482.2, "c": 4535.0, "v": 77}, {"d": "2026-05-01", "o": 4557.0, "h": 4557.0, "l": 4502.0, "c": 4550.2, "v": 113}, {"d": "2026-05-04", "o": 4501.5, "h": 4501.5, "l": 4433.0, "c": 4439.8, "v": 20}, {"d": "2026-05-05", "o": 4467.9, "h": 4500.8, "l": 4467.9, "c": 4476.1, "v": 426}, {"d": "2026-05-06", "o": 4583.9, "h": 4632.9, "l": 4583.9, "c": 4602.2, "v": 212}, {"d": "2026-05-07", "o": 4625.1, "h": 4656.5, "l": 4620.1, "c": 4620.1, "v": 254}, {"d": "2026-05-08", "o": 4634.7, "h": 4645.1, "l": 4633.9, "c": 4640.7, "v": 120}, {"d": "2026-05-11", "o": 4649.8, "h": 4649.8, "l": 4639.0, "c": 4639.0, "v": 36}, {"d": "2026-05-12", "o": 4682.5, "h": 4685.5, "l": 4597.9, "c": 4597.9, "v": 93}, {"d": "2026-05-13", "o": 4643.0, "h": 4643.0, "l": 4599.8, "c": 4618.0, "v": 228}, {"d": "2026-05-14", "o": 4598.4, "h": 4598.4, "l": 4570.6, "c": 4598.4, "v": 5}, {"d": "2026-05-15", "o": 4535.5, "h": 4535.5, "l": 4444.6, "c": 4476.1, "v": 607}, {"d": "2026-05-18", "o": 4483.3, "h": 4490.6, "l": 4459.0, "c": 4472.8, "v": 38}, {"d": "2026-05-19", "o": 4472.0, "h": 4472.9, "l": 4426.5, "c": 4426.6, "v": 875}, {"d": "2026-05-20", "o": 4422.9, "h": 4451.6, "l": 4385.4, "c": 4451.6, "v": 981}, {"d": "2026-05-21", "o": 4427.5, "h": 4460.1, "l": 4424.1, "c": 4460.1, "v": 426}, {"d": "2026-05-22", "o": 4439.8, "h": 4450.6, "l": 4439.4, "c": 4441.3, "v": 40}, {"d": "2026-05-26", "o": 4493.1, "h": 4493.1, "l": 4420.7, "c": 4420.7, "v": 1261}, {"d": "2026-05-27", "o": 4360.0, "h": 4367.8, "l": 4360.0, "c": 4367.8, "v": 81062}, {"d": "2026-05-28", "o": 4373.9, "h": 4432.9, "l": 4283.8, "c": 4419.6, "v": 16427}, {"d": "2026-05-29", "o": 4414.3, "h": 4512.1, "l": 4408.2, "c": 4480.8, "v": 1883}, {"d": "2026-06-01", "o": 4443.8, "h": 4461.7, "l": 4370.0, "c": 4395.5, "v": 835}, {"d": "2026-06-02", "o": 4408.3, "h": 4449.8, "l": 4394.5, "c": 4409.4, "v": 456}, {"d": "2026-06-03", "o": 4391.5, "h": 4392.0, "l": 4347.5, "c": 4357.0, "v": 2913}, {"d": "2026-06-04", "o": 4367.7, "h": 4430.2, "l": 4367.7, "c": 4396.1, "v": 480}, {"d": "2026-06-05", "o": 4392.6, "h": 4392.6, "l": 4239.4, "c": 4257.4, "v": 4062}, {"d": "2026-06-08", "o": 4244.5, "h": 4261.2, "l": 4204.9, "c": 4256.2, "v": 357}, {"d": "2026-06-09", "o": 4253.1, "h": 4264.8, "l": 4160.5, "c": 4180.3, "v": 1292}, {"d": "2026-06-10", "o": 4120.3, "h": 4127.0, "l": 4020.3, "c": 4028.5, "v": 525}, {"d": "2026-06-11", "o": 3963.2, "h": 4130.1, "l": 3951.3, "c": 4010.6, "v": 1938}, {"d": "2026-06-12", "o": 4128.6, "h": 4145.6, "l": 4093.5, "c": 4135.3, "v": 1167}, {"d": "2026-06-15", "o": 4191.5, "h": 4282.3, "l": 4189.4, "c": 4248.3, "v": 1666}, {"d": "2026-06-16", "o": 4229.8, "h": 4266.1, "l": 4229.8, "c": 4251.2, "v": 158}, {"d": "2026-06-17", "o": 4259.3, "h": 4297.3, "l": 4216.3, "c": 4279.2, "v": 1961}, {"d": "2026-06-18", "o": 4200.1, "h": 4243.5, "l": 4144.0, "c": 4144.4, "v": 738}, {"d": "2026-06-22", "o": 4059.1, "h": 4136.7, "l": 4055.1, "c": 4102.2, "v": 1197}, {"d": "2026-06-23", "o": 4047.4, "h": 4055.5, "l": 4038.8, "c": 4050.2, "v": 252}, {"d": "2026-06-24", "o": 4024.7, "h": 4025.0, "l": 3883.6, "c": 3910.6, "v": 353}, {"d": "2026-06-25", "o": 3908.7, "h": 3950.8, "l": 3907.0, "c": 3950.8, "v": 2724}, {"d": "2026-06-26", "o": 3999.0, "h": 3999.0, "l": 3999.0, "c": 3999.0, "v": 1431}, {"d": "2026-06-29", "o": 3977.8, "h": 3990.3, "l": 3923.5, "c": 3942.6, "v": 785}, {"d": "2026-06-30", "o": 3922.9, "h": 3970.0, "l": 3882.8, "c": 3943.2, "v": 1108}, {"d": "2026-07-01", "o": 3933.4, "h": 4020.3, "l": 3883.3, "c": 3988.6, "v": 770}, {"d": "2026-07-02", "o": 3987.8, "h": 4060.4, "l": 3982.3, "c": 4033.0, "v": 228}, {"d": "2026-07-06", "o": 4095.7, "h": 4120.0, "l": 4054.5, "c": 4075.4, "v": 1024}, {"d": "2026-07-07", "o": 4046.8, "h": 4087.5, "l": 4027.5, "c": 4065.6, "v": 53}, {"d": "2026-07-08", "o": 4036.6, "h": 4040.6, "l": 3973.3, "c": 3991.2, "v": 292}, {"d": "2026-07-09", "o": 3986.7, "h": 4050.9, "l": 3984.5, "c": 4050.9, "v": 13}, {"d": "2026-07-10", "o": 4042.6, "h": 4046.1, "l": 4010.9, "c": 4024.4, "v": 389}, {"d": "2026-07-13", "o": 4001.3, "h": 4001.3, "l": 3906.2, "c": 3917.3, "v": 679}, {"d": "2026-07-14", "o": 3916.0, "h": 4011.5, "l": 3906.8, "c": 3981.4, "v": 1281}, {"d": "2026-07-15", "o": 3969.4, "h": 3990.4, "l": 3939.7, "c": 3964.3, "v": 374}, {"d": "2026-07-16", "o": 3950.8, "h": 3950.8, "l": 3892.9, "c": 3905.9, "v": 812}, {"d": "2026-07-17", "o": 3895.8, "h": 3937.5, "l": 3884.5, "c": 3933.0, "v": 141}, {"d": "2026-07-20", "o": 3923.7, "h": 3939.2, "l": 3923.0, "c": 3930.6, "v": 231}, {"d": "2026-07-21", "o": 3922.4, "h": 3991.4, "l": 3920.0, "c": 3991.4, "v": 87}, {"d": "2026-07-22", "o": 4016.5, "h": 4072.4, "l": 4016.5, "c": 4067.2, "v": 133}, {"d": "2026-07-23", "o": 4050.2, "h": 4051.2, "l": 3966.9, "c": 3966.9, "v": 59}, {"d": "2026-07-24", "o": 3987.9, "h": 3988.3, "l": 3987.9, "c": 3987.9, "v": 2}, {"d": "2026-07-27", "o": 4010.4, "h": 4028.2, "l": 3993.0, "c": 3994.8, "v": 36}, {"d": "2026-07-28", "o": 3946.0, "h": 3956.6, "l": 3946.0, "c": 3956.6, "v": 248}, {"d": "2026-07-29", "o": 3938.4, "h": 3955.0, "l": 3938.2, "c": 3955.0, "v": 89664}, {"d": "2026-07-30", "o": 3981.0, "h": 4038.8, "l": 3948.8, "c": 4020.4, "v": 16985}, {"d": "2026-07-31", "o": 4022.7, "h": 4022.7, "l": 3942.7, "c": 3969.4, "v": 1166}, {"d": "2026-08-03", "o": 4003.7, "h": 4003.8, "l": 3946.8, "c": 3954.0, "v": 1166}, {"d": "2026-08-04", "o": 4029.9, "h": 4069.2, "l": 4018.5, "c": 4063.1, "v": 69634}];
+const sma20Data = [{"d": "2026-02-11", "v": 4829.62}, {"d": "2026-02-12", "v": 4844.49}, {"d": "2026-02-13", "v": 4864.78}, {"d": "2026-02-17", "v": 4879.5}, {"d": "2026-02-18", "v": 4890.85}, {"d": "2026-02-19", "v": 4898.05}, {"d": "2026-02-20", "v": 4905.58}, {"d": "2026-02-23", "v": 4917.0}, {"d": "2026-02-24", "v": 4920.81}, {"d": "2026-02-25", "v": 4927.13}, {"d": "2026-02-26", "v": 4920.88}, {"d": "2026-02-27", "v": 4916.48}, {"d": "2026-03-02", "v": 4945.51}, {"d": "2026-03-03", "v": 4969.75}, {"d": "2026-03-04", "v": 4980.58}, {"d": "2026-03-05", "v": 4987.82}, {"d": "2026-03-06", "v": 5002.06}, {"d": "2026-03-09", "v": 5009.07}, {"d": "2026-03-10", "v": 5018.01}, {"d": "2026-03-11", "v": 5026.19}, {"d": "2026-03-12", "v": 5028.4}, {"d": "2026-03-13", "v": 5034.84}, {"d": "2026-03-16", "v": 5033.44}, {"d": "2026-03-17", "v": 5039.35}, {"d": "2026-03-18", "v": 5034.52}, {"d": "2026-03-19", "v": 5015.76}, {"d": "2026-03-20", "v": 4991.31}, {"d": "2026-03-23", "v": 4951.28}, {"d": "2026-03-24", "v": 4913.46}, {"d": "2026-03-25", "v": 4880.63}, {"d": "2026-03-26", "v": 4840.58}, {"d": "2026-03-27", "v": 4803.65}, {"d": "2026-03-30", "v": 4765.23}, {"d": "2026-03-31", "v": 4742.24}, {"d": "2026-04-01", "v": 4725.39}, {"d": "2026-04-02", "v": 4704.7}, {"d": "2026-04-06", "v": 4680.24}, {"d": "2026-04-07", "v": 4658.52}, {"d": "2026-04-08", "v": 4634.51}, {"d": "2026-04-09", "v": 4615.75}, {"d": "2026-04-10", "v": 4598.05}, {"d": "2026-04-13", "v": 4582.55}, {"d": "2026-04-14", "v": 4574.1}, {"d": "2026-04-15", "v": 4564.05}, {"d": "2026-04-16", "v": 4558.82}, {"d": "2026-04-17", "v": 4571.67}, {"d": "2026-04-20", "v": 4583.48}, {"d": "2026-04-21", "v": 4598.19}, {"d": "2026-04-22", "v": 4614.85}, {"d": "2026-04-23", "v": 4622.62}, {"d": "2026-04-24", "v": 4639.96}, {"d": "2026-04-27", "v": 4649.13}, {"d": "2026-04-28", "v": 4652.4}, {"d": "2026-04-29", "v": 4647.28}, {"d": "2026-04-30", "v": 4638.86}, {"d": "2026-05-01", "v": 4637.78}, {"d": "2026-05-04", "v": 4630.91}, {"d": "2026-05-05", "v": 4625.85}, {"d": "2026-05-06", "v": 4622.47}, {"d": "2026-05-07", "v": 4617.85}, {"d": "2026-05-08", "v": 4615.77}, {"d": "2026-05-11", "v": 4614.59}, {"d": "2026-05-12", "v": 4607.22}, {"d": "2026-05-13", "v": 4602.1}, {"d": "2026-05-14", "v": 4596.74}, {"d": "2026-05-15", "v": 4581.65}, {"d": "2026-05-18", "v": 4568.94}, {"d": "2026-05-19", "v": 4559.34}, {"d": "2026-05-20", "v": 4549.28}, {"d": "2026-05-21", "v": 4541.01}, {"d": "2026-05-22", "v": 4530.95}, {"d": "2026-05-26", "v": 4522.2}, {"d": "2026-05-27", "v": 4515.0}, {"d": "2026-05-28", "v": 4512.7}, {"d": "2026-05-29", "v": 4509.99}, {"d": "2026-06-01", "v": 4502.26}, {"d": "2026-06-02", "v": 4500.74}, {"d": "2026-06-03", "v": 4494.78}, {"d": "2026-06-04", "v": 4484.48}, {"d": "2026-06-05", "v": 4466.34}, {"d": "2026-06-08", "v": 4447.12}, {"d": "2026-06-09", "v": 4424.18}, {"d": "2026-06-10", "v": 4395.71}, {"d": "2026-06-11", "v": 4365.34}, {"d": "2026-06-12", "v": 4342.19}, {"d": "2026-06-15", "v": 4330.8}, {"d": "2026-06-16", "v": 4319.72}, {"d": "2026-06-17", "v": 4312.35}, {"d": "2026-06-18", "v": 4296.99}, {"d": "2026-06-22", "v": 4279.09}, {"d": "2026-06-23", "v": 4259.54}, {"d": "2026-06-24", "v": 4234.03}, {"d": "2026-06-25", "v": 4213.18}, {"d": "2026-06-26", "v": 4192.15}, {"d": "2026-06-29", "v": 4165.24}, {"d": "2026-06-30", "v": 4142.63}, {"d": "2026-07-01", "v": 4121.59}, {"d": "2026-07-02", "v": 4105.39}, {"d": "2026-07-06", "v": 4089.35}, {"d": "2026-07-07", "v": 4079.76}, {"d": "2026-07-08", "v": 4066.51}, {"d": "2026-07-09", "v": 4060.04}, {"d": "2026-07-10", "v": 4059.84}, {"d": "2026-07-13", "v": 4055.17}, {"d": "2026-07-14", "v": 4047.48}, {"d": "2026-07-15", "v": 4033.28}, {"d": "2026-07-16", "v": 4016.01}, {"d": "2026-07-17", "v": 3998.7}, {"d": "2026-07-20", "v": 3988.01}, {"d": "2026-07-21", "v": 3982.47}, {"d": "2026-07-22", "v": 3983.32}, {"d": "2026-07-23", "v": 3986.14}, {"d": "2026-07-24", "v": 3987.99}, {"d": "2026-07-27", "v": 3987.78}, {"d": "2026-07-28", "v": 3988.48}, {"d": "2026-07-29", "v": 3989.07}, {"d": "2026-07-30", "v": 3990.66}, {"d": "2026-07-31", "v": 3987.48}, {"d": "2026-08-03", "v": 3981.41}, {"d": "2026-08-04", "v": 3981.29}];
+const sma50Data = [{"d": "2026-02-11", "v": 4497.22}, {"d": "2026-02-12", "v": 4510.91}, {"d": "2026-02-13", "v": 4527.62}, {"d": "2026-02-17", "v": 4541.29}, {"d": "2026-02-18", "v": 4556.79}, {"d": "2026-02-19", "v": 4572.05}, {"d": "2026-02-20", "v": 4589.49}, {"d": "2026-02-23", "v": 4609.45}, {"d": "2026-02-24", "v": 4628.64}, {"d": "2026-02-25", "v": 4647.05}, {"d": "2026-02-26", "v": 4664.58}, {"d": "2026-02-27", "v": 4683.06}, {"d": "2026-03-02", "v": 4702.86}, {"d": "2026-03-03", "v": 4718.05}, {"d": "2026-03-04", "v": 4733.67}, {"d": "2026-03-05", "v": 4747.75}, {"d": "2026-03-06", "v": 4761.78}, {"d": "2026-03-09", "v": 4773.95}, {"d": "2026-03-10", "v": 4788.93}, {"d": "2026-03-11", "v": 4801.7}, {"d": "2026-03-12", "v": 4817.51}, {"d": "2026-03-13", "v": 4831.16}, {"d": "2026-03-16", "v": 4844.53}, {"d": "2026-03-17", "v": 4858.26}, {"d": "2026-03-18", "v": 4867.32}, {"d": "2026-03-19", "v": 4869.69}, {"d": "2026-03-20", "v": 4872.11}, {"d": "2026-03-23", "v": 4871.2}, {"d": "2026-03-24", "v": 4869.38}, {"d": "2026-03-25", "v": 4868.29}, {"d": "2026-03-26", "v": 4864.02}, {"d": "2026-03-27", "v": 4861.33}, {"d": "2026-03-30", "v": 4859.52}, {"d": "2026-03-31", "v": 4860.71}, {"d": "2026-04-01", "v": 4861.18}, {"d": "2026-04-02", "v": 4857.57}, {"d": "2026-04-06", "v": 4852.53}, {"d": "2026-04-07", "v": 4846.15}, {"d": "2026-04-08", "v": 4839.55}, {"d": "2026-04-09", "v": 4833.79}, {"d": "2026-04-10", "v": 4823.0}, {"d": "2026-04-13", "v": 4811.48}, {"d": "2026-04-14", "v": 4813.7}, {"d": "2026-04-15", "v": 4817.25}, {"d": "2026-04-16", "v": 4814.89}, {"d": "2026-04-17", "v": 4813.63}, {"d": "2026-04-20", "v": 4812.53}, {"d": "2026-04-21", "v": 4807.48}, {"d": "2026-04-22", "v": 4801.11}, {"d": "2026-04-23", "v": 4795.14}, {"d": "2026-04-24", "v": 4788.15}, {"d": "2026-04-27", "v": 4783.18}, {"d": "2026-04-28", "v": 4774.57}, {"d": "2026-04-29", "v": 4767.82}, {"d": "2026-04-30", "v": 4760.38}, {"d": "2026-05-01", "v": 4753.46}, {"d": "2026-05-04", "v": 4742.67}, {"d": "2026-05-05", "v": 4729.69}, {"d": "2026-05-06", "v": 4720.21}, {"d": "2026-05-07", "v": 4710.08}, {"d": "2026-05-08", "v": 4700.96}, {"d": "2026-05-11", "v": 4690.72}, {"d": "2026-05-12", "v": 4678.39}, {"d": "2026-05-13", "v": 4670.19}, {"d": "2026-05-14", "v": 4661.35}, {"d": "2026-05-15", "v": 4651.16}, {"d": "2026-05-18", "v": 4639.29}, {"d": "2026-05-19", "v": 4627.58}, {"d": "2026-05-20", "v": 4613.62}, {"d": "2026-05-21", "v": 4601.06}, {"d": "2026-05-22", "v": 4589.17}, {"d": "2026-05-26", "v": 4578.13}, {"d": "2026-05-27", "v": 4567.2}, {"d": "2026-05-28", "v": 4557.16}, {"d": "2026-05-29", "v": 4550.57}, {"d": "2026-06-01", "v": 4548.06}, {"d": "2026-06-02", "v": 4546.44}, {"d": "2026-06-03", "v": 4547.09}, {"d": "2026-06-04", "v": 4548.62}, {"d": "2026-06-05", "v": 4544.37}, {"d": "2026-06-08", "v": 4543.57}, {"d": "2026-06-09", "v": 4538.93}, {"d": "2026-06-10", "v": 4530.58}, {"d": "2026-06-11", "v": 4519.43}, {"d": "2026-06-12", "v": 4508.07}, {"d": "2026-06-15", "v": 4501.6}, {"d": "2026-06-16", "v": 4495.08}, {"d": "2026-06-17", "v": 4489.12}, {"d": "2026-06-18", "v": 4478.61}, {"d": "2026-06-22", "v": 4466.4}, {"d": "2026-06-23", "v": 4453.76}, {"d": "2026-06-24", "v": 4438.72}, {"d": "2026-06-25", "v": 4422.83}, {"d": "2026-06-26", "v": 4408.4}, {"d": "2026-06-29", "v": 4393.14}, {"d": "2026-06-30", "v": 4376.45}, {"d": "2026-07-01", "v": 4361.68}, {"d": "2026-07-02", "v": 4349.97}, {"d": "2026-07-06", "v": 4338.42}, {"d": "2026-07-07", "v": 4327.22}, {"d": "2026-07-08", "v": 4314.2}, {"d": "2026-07-09", "v": 4303.3}, {"d": "2026-07-10", "v": 4293.55}, {"d": "2026-07-13", "v": 4282.59}, {"d": "2026-07-14", "v": 4271.52}, {"d": "2026-07-15", "v": 4259.8}, {"d": "2026-07-16", "v": 4249.12}, {"d": "2026-07-17", "v": 4238.26}, {"d": "2026-07-20", "v": 4224.83}, {"d": "2026-07-21", "v": 4212.25}, {"d": "2026-07-22", "v": 4200.78}, {"d": "2026-07-23", "v": 4187.34}, {"d": "2026-07-24", "v": 4175.14}, {"d": "2026-07-27", "v": 4162.68}, {"d": "2026-07-28", "v": 4149.84}, {"d": "2026-07-29", "v": 4139.42}, {"d": "2026-07-30", "v": 4130.37}, {"d": "2026-07-31", "v": 4121.23}, {"d": "2026-08-03", "v": 4111.27}, {"d": "2026-08-04", "v": 4103.33}];
+const vwapData = [{"d": "2026-02-11", "v": 3333.63}, {"d": "2026-02-12", "v": 3334.11}, {"d": "2026-02-13", "v": 3334.34}, {"d": "2026-02-17", "v": 3334.86}, {"d": "2026-02-18", "v": 3335.39}, {"d": "2026-02-19", "v": 3335.43}, {"d": "2026-02-20", "v": 3335.57}, {"d": "2026-02-23", "v": 3336.45}, {"d": "2026-02-24", "v": 3336.54}, {"d": "2026-02-25", "v": 3338.55}, {"d": "2026-02-26", "v": 3340.25}, {"d": "2026-02-27", "v": 3340.65}, {"d": "2026-03-02", "v": 3340.74}, {"d": "2026-03-03", "v": 3342.69}, {"d": "2026-03-04", "v": 3343.43}, {"d": "2026-03-05", "v": 3345.23}, {"d": "2026-03-06", "v": 3345.39}, {"d": "2026-03-09", "v": 3346.08}, {"d": "2026-03-10", "v": 3350.9}, {"d": "2026-03-11", "v": 3351.6}, {"d": "2026-03-12", "v": 3352.04}, {"d": "2026-03-13", "v": 3352.53}, {"d": "2026-03-16", "v": 3352.66}, {"d": "2026-03-17", "v": 3352.9}, {"d": "2026-03-18", "v": 3354.24}, {"d": "2026-03-19", "v": 3354.72}, {"d": "2026-03-20", "v": 3354.9}, {"d": "2026-03-23", "v": 3355.2}, {"d": "2026-03-24", "v": 3355.43}, {"d": "2026-03-25", "v": 3355.7}, {"d": "2026-03-26", "v": 3356.35}, {"d": "2026-03-27", "v": 3403.6}, {"d": "2026-03-30", "v": 3410.21}, {"d": "2026-03-31", "v": 3413.07}, {"d": "2026-04-01", "v": 3414.29}, {"d": "2026-04-02", "v": 3414.29}, {"d": "2026-04-06", "v": 3414.39}, {"d": "2026-04-07", "v": 3414.62}, {"d": "2026-04-08", "v": 3414.93}, {"d": "2026-04-09", "v": 3415.89}, {"d": "2026-04-10", "v": 3416.51}, {"d": "2026-04-13", "v": 3416.53}, {"d": "2026-04-14", "v": 3416.76}, {"d": "2026-04-15", "v": 3416.9}, {"d": "2026-04-16", "v": 3417.52}, {"d": "2026-04-17", "v": 3419.03}, {"d": "2026-04-20", "v": 3419.59}, {"d": "2026-04-21", "v": 3420.43}, {"d": "2026-04-22", "v": 3421.0}, {"d": "2026-04-23", "v": 3421.21}, {"d": "2026-04-24", "v": 3421.24}, {"d": "2026-04-27", "v": 3421.62}, {"d": "2026-04-28", "v": 3423.38}, {"d": "2026-04-29", "v": 3423.69}, {"d": "2026-04-30", "v": 3423.74}, {"d": "2026-05-01", "v": 3423.82}, {"d": "2026-05-04", "v": 3423.83}, {"d": "2026-05-05", "v": 3424.1}, {"d": "2026-05-06", "v": 3424.24}, {"d": "2026-05-07", "v": 3424.43}, {"d": "2026-05-08", "v": 3424.51}, {"d": "2026-05-11", "v": 3424.54}, {"d": "2026-05-12", "v": 3424.6}, {"d": "2026-05-13", "v": 3424.77}, {"d": "2026-05-14", "v": 3424.77}, {"d": "2026-05-15", "v": 3425.15}, {"d": "2026-05-18", "v": 3425.17}, {"d": "2026-05-19", "v": 3425.7}, {"d": "2026-05-20", "v": 3426.28}, {"d": "2026-05-21", "v": 3426.54}, {"d": "2026-05-22", "v": 3426.56}, {"d": "2026-05-26", "v": 3427.32}, {"d": "2026-05-27", "v": 3470.07}, {"d": "2026-05-28", "v": 3478.39}, {"d": "2026-05-29", "v": 3479.42}, {"d": "2026-06-01", "v": 3479.86}, {"d": "2026-06-02", "v": 3480.09}, {"d": "2026-06-03", "v": 3481.53}, {"d": "2026-06-04", "v": 3481.77}, {"d": "2026-06-05", "v": 3483.6}, {"d": "2026-06-08", "v": 3483.75}, {"d": "2026-06-09", "v": 3484.27}, {"d": "2026-06-10", "v": 3484.43}, {"d": "2026-06-11", "v": 3485.02}, {"d": "2026-06-12", "v": 3485.43}, {"d": "2026-06-15", "v": 3486.13}, {"d": "2026-06-16", "v": 3486.19}, {"d": "2026-06-17", "v": 3487.03}, {"d": "2026-06-18", "v": 3487.31}, {"d": "2026-06-22", "v": 3487.72}, {"d": "2026-06-23", "v": 3487.79}, {"d": "2026-06-24", "v": 3487.88}, {"d": "2026-06-25", "v": 3488.55}, {"d": "2026-06-26", "v": 3488.95}, {"d": "2026-06-29", "v": 3489.15}, {"d": "2026-06-30", "v": 3489.42}, {"d": "2026-07-01", "v": 3489.62}, {"d": "2026-07-02", "v": 3489.69}, {"d": "2026-07-06", "v": 3490.02}, {"d": "2026-07-07", "v": 3490.04}, {"d": "2026-07-08", "v": 3490.12}, {"d": "2026-07-09", "v": 3490.13}, {"d": "2026-07-10", "v": 3490.24}, {"d": "2026-07-13", "v": 3490.41}, {"d": "2026-07-14", "v": 3490.74}, {"d": "2026-07-15", "v": 3490.84}, {"d": "2026-07-16", "v": 3491.03}, {"d": "2026-07-17", "v": 3491.06}, {"d": "2026-07-20", "v": 3491.12}, {"d": "2026-07-21", "v": 3491.14}, {"d": "2026-07-22", "v": 3491.18}, {"d": "2026-07-23", "v": 3491.2}, {"d": "2026-07-24", "v": 3491.2}, {"d": "2026-07-27", "v": 3491.21}, {"d": "2026-07-28", "v": 3491.27}, {"d": "2026-07-29", "v": 3512.67}, {"d": "2026-07-30", "v": 3516.97}, {"d": "2026-07-31", "v": 3517.25}, {"d": "2026-08-03", "v": 3517.52}, {"d": "2026-08-04", "v": 3535.99}];
+const ichiData = [{"d": "2026-02-11", "t": 4840.55, "k": 4913.4, "sa": 4301.58, "sb": 4155.3}, {"d": "2026-02-12", "t": 4675.95, "k": 4913.4, "sa": 4304.7, "sb": 4155.3}, {"d": "2026-02-13", "t": 4803.45, "k": 4913.4, "sa": 4311.45, "sb": 4155.3}, {"d": "2026-02-17", "t": 4803.45, "k": 4913.4, "sa": 4311.45, "sb": 4155.3}, {"d": "2026-02-18", "t": 4803.45, "k": 4913.4, "sa": 4296.95, "sb": 4155.3}, {"d": "2026-02-19", "t": 4803.45, "k": 4913.4, "sa": 4345.3, "sb": 4187.15}, {"d": "2026-02-20", "t": 4899.85, "k": 4913.4, "sa": 4345.43, "sb": 4187.15}, {"d": "2026-02-23", "t": 4950.0, "k": 4913.4, "sa": 4360.28, "sb": 4194.65}, {"d": "2026-02-24", "t": 4950.0, "k": 4913.4, "sa": 4378.43, "sb": 4201.5}, {"d": "2026-02-25", "t": 4950.0, "k": 4913.4, "sa": 4388.2, "sb": 4201.5}, {"d": "2026-02-26", "t": 4950.0, "k": 4913.4, "sa": 4460.38, "sb": 4266.0}, {"d": "2026-02-27", "t": 4984.2, "k": 4913.4, "sa": 4525.95, "sb": 4321.4}, {"d": "2026-03-02", "t": 5057.55, "k": 4913.4, "sa": 4560.58, "sb": 4364.65}, {"d": "2026-03-03", "t": 5110.75, "k": 4913.4, "sa": 4620.48, "sb": 4398.8}, {"d": "2026-03-04", "t": 5134.3, "k": 4913.4, "sa": 4684.0, "sb": 4477.8}, {"d": "2026-03-05", "t": 5134.3, "k": 4913.4, "sa": 4686.45, "sb": 4477.8}, {"d": "2026-03-06", "t": 5134.3, "k": 4913.4, "sa": 4789.45, "sb": 4580.8}, {"d": "2026-03-09", "t": 5134.3, "k": 4840.55, "sa": 4931.75, "sb": 4723.1}, {"d": "2026-03-10", "t": 5134.3, "k": 4822.8, "sa": 4950.1, "sb": 4723.1}, {"d": "2026-03-11", "t": 5134.3, "k": 4950.3, "sa": 4884.65, "sb": 4723.1}, {"d": "2026-03-12", "t": 5134.3, "k": 4950.3, "sa": 4884.65, "sb": 4729.3}, {"d": "2026-03-13", "t": 5076.95, "k": 4950.3, "sa": 4884.65, "sb": 4729.3}, {"d": "2026-03-16", "t": 5032.15, "k": 4950.3, "sa": 4884.65, "sb": 4729.3}, {"d": "2026-03-17", "t": 5032.15, "k": 5046.7, "sa": 4884.65, "sb": 4729.3}, {"d": "2026-03-18", "t": 4946.0, "k": 5033.65, "sa": 4892.0, "sb": 4743.65}, {"d": "2026-03-19", "t": 4812.15, "k": 4899.8, "sa": 4909.6, "sb": 4777.15}, {"d": "2026-03-20", "t": 4812.15, "k": 4899.8, "sa": 4876.98, "sb": 4777.15}, {"d": "2026-03-23", "t": 4566.35, "k": 4673.2, "sa": 4794.68, "sb": 4783.4}, {"d": "2026-03-24", "t": 4539.3, "k": 4673.2, "sa": 4858.43, "sb": 4796.9}, {"d": "2026-03-25", "t": 4529.2, "k": 4673.2, "sa": 4858.43, "sb": 4796.9}, {"d": "2026-03-26", "t": 4479.5, "k": 4673.2, "sa": 4858.43, "sb": 4800.9}, {"d": "2026-03-27", "t": 4479.5, "k": 4673.2, "sa": 4858.43, "sb": 4800.9}, {"d": "2026-03-30", "t": 4445.5, "k": 4673.2, "sa": 4906.63, "sb": 4801.15}, {"d": "2026-03-31", "t": 4385.85, "k": 4673.2, "sa": 4931.7, "sb": 4801.15}, {"d": "2026-04-01", "t": 4365.25, "k": 4673.2, "sa": 4931.7, "sb": 4802.25}, {"d": "2026-04-02", "t": 4365.25, "k": 4673.2, "sa": 4931.7, "sb": 4805.2}, {"d": "2026-04-06", "t": 4477.45, "k": 4673.2, "sa": 4931.7, "sb": 4820.55}, {"d": "2026-04-07", "t": 4502.6, "k": 4673.2, "sa": 4948.8, "sb": 4843.4}, {"d": "2026-04-08", "t": 4533.55, "k": 4622.6, "sa": 4985.48, "sb": 4848.65}, {"d": "2026-04-09", "t": 4552.5, "k": 4585.55, "sa": 5012.08, "sb": 4848.65}, {"d": "2026-04-10", "t": 4552.5, "k": 4585.55, "sa": 5023.85, "sb": 4855.9}, {"d": "2026-04-13", "t": 4600.1, "k": 4585.55, "sa": 5023.85, "sb": 4855.9}, {"d": "2026-04-14", "t": 4625.25, "k": 4585.55, "sa": 5023.85, "sb": 4855.9}, {"d": "2026-04-15", "t": 4625.25, "k": 4585.55, "sa": 4987.43, "sb": 4855.9}, {"d": "2026-04-16", "t": 4648.3, "k": 4566.35, "sa": 4978.55, "sb": 4855.9}, {"d": "2026-04-17", "t": 4664.15, "k": 4539.3, "sa": 5042.3, "sb": 4855.9}, {"d": "2026-04-20", "t": 4712.15, "k": 4529.2, "sa": 5042.3, "sb": 4855.9}, {"d": "2026-04-21", "t": 4698.35, "k": 4479.5, "sa": 5013.63, "sb": 4855.9}, {"d": "2026-04-22", "t": 4698.35, "k": 4479.5, "sa": 4991.23, "sb": 4855.9}, {"d": "2026-04-23", "t": 4698.35, "k": 4445.5, "sa": 5039.43, "sb": 4855.9}, {"d": "2026-04-24", "t": 4688.9, "k": 4410.55, "sa": 4989.83, "sb": 4870.6}, {"d": "2026-04-27", "t": 4688.9, "k": 4410.55, "sa": 4855.98, "sb": 4905.8}, {"d": "2026-04-28", "t": 4655.9, "k": 4410.55, "sa": 4855.98, "sb": 4913.4}, {"d": "2026-04-29", "t": 4618.0, "k": 4522.75, "sa": 4619.78, "sb": 4763.8}, {"d": "2026-04-30", "t": 4583.65, "k": 4547.9, "sa": 4606.25, "sb": 4763.8}, {"d": "2026-05-01", "t": 4555.25, "k": 4547.9, "sa": 4601.2, "sb": 4763.8}, {"d": "2026-05-04", "t": 4553.75, "k": 4566.85, "sa": 4576.35, "sb": 4763.8}, {"d": "2026-05-05", "t": 4542.85, "k": 4566.85, "sa": 4576.35, "sb": 4763.8}, {"d": "2026-05-06", "t": 4537.8, "k": 4614.45, "sa": 4559.35, "sb": 4763.8}, {"d": "2026-05-07", "t": 4544.75, "k": 4616.5, "sa": 4529.53, "sb": 4763.8}, {"d": "2026-05-08", "t": 4544.75, "k": 4616.5, "sa": 4519.23, "sb": 4763.8}, {"d": "2026-05-11", "t": 4544.75, "k": 4616.5, "sa": 4519.23, "sb": 4763.8}, {"d": "2026-05-12", "t": 4559.25, "k": 4616.5, "sa": 4575.33, "sb": 4763.8}, {"d": "2026-05-13", "t": 4559.25, "k": 4616.5, "sa": 4587.9, "sb": 4763.8}, {"d": "2026-05-14", "t": 4559.25, "k": 4616.5, "sa": 4578.08, "sb": 4763.8}, {"d": "2026-05-15", "t": 4565.05, "k": 4616.5, "sa": 4569.03, "sb": 4763.8}, {"d": "2026-05-18", "t": 4565.05, "k": 4616.5, "sa": 4569.03, "sb": 4763.8}, {"d": "2026-05-19", "t": 4556.0, "k": 4613.25, "sa": 4592.83, "sb": 4763.8}, {"d": "2026-05-20", "t": 4535.45, "k": 4592.7, "sa": 4605.4, "sb": 4763.8}, {"d": "2026-05-21", "t": 4535.45, "k": 4592.7, "sa": 4605.4, "sb": 4690.95}, {"d": "2026-05-22", "t": 4535.45, "k": 4592.7, "sa": 4607.33, "sb": 4673.2}, {"d": "2026-05-26", "t": 4514.2, "k": 4558.35, "sa": 4601.73, "sb": 4673.2}, {"d": "2026-05-27", "t": 4479.2, "k": 4522.75, "sa": 4620.68, "sb": 4673.2}, {"d": "2026-05-28", "t": 4409.65, "k": 4484.65, "sa": 4588.93, "sb": 4673.2}, {"d": "2026-05-29", "t": 4397.95, "k": 4484.65, "sa": 4588.93, "sb": 4673.2}, {"d": "2026-06-01", "t": 4397.95, "k": 4484.65, "sa": 4571.93, "sb": 4673.2}, {"d": "2026-06-02", "t": 4397.95, "k": 4484.65, "sa": 4549.73, "sb": 4673.2}, {"d": "2026-06-03", "t": 4397.95, "k": 4484.65, "sa": 4549.73, "sb": 4673.2}, {"d": "2026-06-04", "t": 4397.95, "k": 4484.65, "sa": 4533.23, "sb": 4673.2}, {"d": "2026-06-05", "t": 4375.75, "k": 4462.45, "sa": 4570.38, "sb": 4673.2}, {"d": "2026-06-08", "t": 4358.5, "k": 4445.2, "sa": 4565.78, "sb": 4673.2}, {"d": "2026-06-09", "t": 4336.3, "k": 4423.0, "sa": 4551.58, "sb": 4673.2}, {"d": "2026-06-10", "t": 4266.2, "k": 4352.9, "sa": 4560.3, "sb": 4673.2}, {"d": "2026-06-11", "t": 4206.5, "k": 4318.4, "sa": 4554.85, "sb": 4673.2}, {"d": "2026-06-12", "t": 4200.55, "k": 4318.4, "sa": 4576.13, "sb": 4673.2}, {"d": "2026-06-15", "t": 4190.75, "k": 4318.4, "sa": 4580.63, "sb": 4673.2}, {"d": "2026-06-16", "t": 4190.75, "k": 4318.4, "sa": 4580.63, "sb": 4673.2}, {"d": "2026-06-17", "t": 4171.95, "k": 4318.4, "sa": 4580.63, "sb": 4673.2}, {"d": "2026-06-18", "t": 4124.3, "k": 4297.15, "sa": 4587.88, "sb": 4673.2}, {"d": "2026-06-22", "t": 4124.3, "k": 4274.85, "sa": 4587.88, "sb": 4673.2}, {"d": "2026-06-23", "t": 4124.3, "k": 4243.4, "sa": 4587.88, "sb": 4622.6}, {"d": "2026-06-24", "t": 4090.45, "k": 4197.85, "sa": 4590.78, "sb": 4585.55}, {"d": "2026-06-25", "t": 4090.45, "k": 4197.85, "sa": 4590.78, "sb": 4585.55}, {"d": "2026-06-26", "t": 4090.45, "k": 4197.85, "sa": 4584.63, "sb": 4585.55}, {"d": "2026-06-29", "t": 4090.45, "k": 4197.85, "sa": 4564.08, "sb": 4585.55}, {"d": "2026-06-30", "t": 4090.05, "k": 4197.45, "sa": 4564.08, "sb": 4585.55}, {"d": "2026-07-01", "t": 4063.15, "k": 4197.45, "sa": 4564.08, "sb": 4566.35}, {"d": "2026-07-02", "t": 4009.75, "k": 4197.45, "sa": 4536.28, "sb": 4539.3}, {"d": "2026-07-06", "t": 4001.4, "k": 4197.45, "sa": 4500.98, "sb": 4529.2}, {"d": "2026-07-07", "t": 4001.4, "k": 4197.45, "sa": 4447.15, "sb": 4479.5}, {"d": "2026-07-08", "t": 4001.4, "k": 4172.25, "sa": 4441.3, "sb": 4479.5}, {"d": "2026-07-09", "t": 4001.4, "k": 4166.3, "sa": 4441.3, "sb": 4445.5}, {"d": "2026-07-10", "t": 4001.4, "k": 4156.5, "sa": 4441.3, "sb": 4410.55}, {"d": "2026-07-13", "t": 4001.4, "k": 4156.5, "sa": 4441.3, "sb": 4410.55}, {"d": "2026-07-14", "t": 4001.65, "k": 4137.7, "sa": 4441.3, "sb": 4410.55}, {"d": "2026-07-15", "t": 4013.1, "k": 4090.05, "sa": 4419.1, "sb": 4519.7}, {"d": "2026-07-16", "t": 4006.45, "k": 4090.05, "sa": 4401.85, "sb": 4502.45}, {"d": "2026-07-17", "t": 3986.0, "k": 4090.05, "sa": 4379.65, "sb": 4480.25}, {"d": "2026-07-20", "t": 3967.7, "k": 4090.05, "sa": 4309.55, "sb": 4410.15}, {"d": "2026-07-21", "t": 3967.7, "k": 4090.05, "sa": 4262.45, "sb": 4375.65}, {"d": "2026-07-22", "t": 3978.45, "k": 4090.05, "sa": 4259.48, "sb": 4375.65}, {"d": "2026-07-23", "t": 3978.45, "k": 4090.05, "sa": 4254.58, "sb": 4375.65}, {"d": "2026-07-24", "t": 3978.45, "k": 4090.05, "sa": 4254.58, "sb": 4375.65}, {"d": "2026-07-27", "t": 3978.45, "k": 4063.15, "sa": 4245.18, "sb": 4375.65}, {"d": "2026-07-28", "t": 3978.45, "k": 4009.75, "sa": 4210.73, "sb": 4375.65}, {"d": "2026-07-29", "t": 3978.45, "k": 4001.4, "sa": 4199.58, "sb": 4375.65}, {"d": "2026-07-30", "t": 3996.2, "k": 4001.4, "sa": 4183.85, "sb": 4375.65}, {"d": "2026-07-31", "t": 3996.2, "k": 4001.4, "sa": 4144.15, "sb": 4341.8}, {"d": "2026-08-03", "t": 4005.3, "k": 4001.4, "sa": 4144.15, "sb": 4341.8}, {"d": "2026-08-04", "t": 4003.7, "k": 4001.4, "sa": 4144.15, "sb": 4341.8}];
+const events = [{"d": "2026-08-05", "t": "14:15", "e": "ISM Services PMI", "i": "high", "f": "52.5", "p": "52.4"}, {"d": "2026-08-06", "t": "14:30", "e": "Initial Jobless Claims", "i": "medium", "f": "225K", "p": "224K"}, {"d": "2026-08-07", "t": "08:30", "e": "Nonfarm Payrolls", "i": "high", "f": "185K", "p": "177K"}, {"d": "2026-08-07", "t": "08:30", "e": "Unemployment Rate", "i": "high", "f": "4.2%", "p": "4.3%"}, {"d": "2026-08-12", "t": "08:30", "e": "CPI m/m", "i": "high", "f": "0.2%", "p": "0.1%"}, {"d": "2026-08-12", "t": "08:30", "e": "Core CPI m/m", "i": "high", "f": "0.3%", "p": "0.2%"}, {"d": "2026-08-13", "t": "14:15", "e": "PPI m/m", "i": "medium", "f": "0.2%", "p": "0.1%"}, {"d": "2026-08-14", "t": "10:00", "e": "Prelim UoM Consumer Sentiment", "i": "medium", "f": "68.5", "p": "67.8"}, {"d": "2026-08-19", "t": "14:00", "e": "FOMC Meeting Minutes", "i": "high", "f": "-", "p": "-"}, {"d": "2026-08-21", "t": "10:00", "e": "Jackson Hole Symposium", "i": "high", "f": "-", "p": "-"}, {"d": "2026-08-26", "t": "08:30", "e": "Durable Goods Orders m/m", "i": "medium", "f": "0.5%", "p": "-0.1%"}, {"d": "2026-08-28", "t": "08:30", "e": "Core PCE Price Index m/m", "i": "high", "f": "0.2%", "p": "0.1%"}, {"d": "2026-09-01", "t": "10:00", "e": "ISM Manufacturing PMI", "i": "high", "f": "48.5", "p": "48.3"}, {"d": "2026-09-03", "t": "14:15", "e": "ISM Services PMI", "i": "high", "f": "52.3", "p": "52.5"}, {"d": "2026-09-04", "t": "08:30", "e": "Nonfarm Payrolls", "i": "high", "f": "190K", "p": "185K"}, {"d": "2026-09-16", "t": "14:00", "e": "FOMC Interest Rate Decision", "i": "high", "f": "4.50%", "p": "4.75%"}];
+const levels = {r1:4082.04,r2:4100.97,s1:4031.34,s2:3999.57,pp:4050.27,liqA:5506.5,liqB:2474.5};
+let visibleSeries = {sma20:true,sma50:true,vwap:true,liq:true,rs:true,ichi:true};
 
-async function updateRadar() {
-    try {
-        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd');
-        const data = await response.json();
-        const price = parseFloat(data['tether-gold']?.usd);
+// === AUTO-REFRESH CO 60 SEKUND ===
+let lastPrice = 4063.1;
+let basePrice = 4063.1;
 
-        if (!price) return;
+async function fetchLivePrice() {
+  try {
+    const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/xau.json');
+    const data = await res.json();
+    const price = data.xau.usd;
+    const date = data.date;
 
-        document.getElementById('livePrice').innerText = price.toFixed(2);
+    if (price) {
+      lastPrice = price;
+      const ratio = price / basePrice;
+      document.getElementById('currentPrice').textContent = price.toFixed(2);
+      document.getElementById('lastUpdate').textContent = date + ' | D1 (live)';
+      document.getElementById('refreshStatus').textContent = 'Auto-refresh: ON (60s) | Ostatnia: ' + new Date().toLocaleTimeString('pl-PL');
 
-        // Zdefiniowane kluczowe strefy reakcji (np. dolna i górna płynność)
-        // Zakładamy strefy odległe o ok. $10 od ceny bieżącej dla precyzyjnego intraday
-        const demandLevel = price - 8.00; // Dolna strefa kupna
-        const supplyLevel = price + 8.00; // Górna strefa sprzedaży
-
-        const distToDemand = Math.abs(price - demandLevel);
-        const distToSupply = Math.abs(supplyLevel - price);
-
-        // Wybieramy bliższą strefę
-        let targetZonePrice, isDemand;
-        if (distToDemand < distToSupply) {
-            targetZonePrice = demandLevel;
-            isDemand = true;
-        } else {
-            targetZonePrice = supplyLevel;
-            isDemand = false;
-        }
-
-        const distance = Math.abs(price - targetZonePrice);
-        
-        // Wyliczenie % bliskości setupu (skala od $8 odległości = 0% do $0 odległości = 100%)
-        let progress = Math.max(0, Math.min(100, ((8.00 - distance) / 8.00) * 100));
-
-        const badge = document.getElementById('proximityBadge');
-        const fill = document.getElementById('proximityProgress');
-        const percentTxt = document.getElementById('proximityPercent');
-        const details = document.getElementById('proximityDetails');
-
-        percentTxt.innerText = progress.toFixed(0) + '%';
-        fill.style.width = progress + '%';
-
-        if (progress < 60) {
-            badge.className = "badge badge-wait";
-            badge.innerText = "DALEKO OD STREFY (ODPOCZYNEK)";
-            fill.style.background = "var(--text-dim)";
-            details.innerText = "Cena w środku pola. Nie musisz ciągle obserwować ekranu.";
-        } else if (progress >= 60 && progress < 88) {
-            badge.className = "badge badge-near";
-            badge.innerText = "CENA ZBLIŻA SIĘ DO STREFY";
-            fill.style.background = "var(--yellow)";
-            details.innerText = "Złoto zaczyna zmierzać w stronę płynności. Przygotuj stanowisko.";
-        } else {
-            badge.className = "badge " + (isDemand ? "badge-buy" : "badge-sell");
-            badge.innerText = isDemand ? "STREFA KUPNA (REAKCJA!)" : "STREFA SPRZEDAŻY (REAKCJA!)";
-            fill.style.background = isDemand ? "var(--green)" : "var(--red)";
-            details.innerText = "Idealna strefa wejścia! Szukaj potwierdzenia świecowego.";
-        }
-
-        // Ustawienia w tabeli
-        document.getElementById('targetZone').innerText = targetZonePrice.toFixed(2) + (isDemand ? " (Demand)" : " (Supply)");
-        document.getElementById('distancePips').innerText = "$" + distance.toFixed(2);
-        
-        let sl = isDemand ? targetZonePrice - 4.50 : targetZonePrice + 4.50;
-        let tp = isDemand ? targetZonePrice + 11.25 : targetZonePrice - 11.25;
-
-        document.getElementById('calcSL').innerText = sl.toFixed(2);
-        document.getElementById('calcTP').innerText = tp.toFixed(2);
-
-        const now = new Date();
-        document.getElementById('syncTime').innerText = now.toTimeString().split(' ')[0].substring(0,5) + ' | Live Data';
-
-    } catch (e) {
-        console.error("Błąd radaru:", e);
+      // Aktualizuj poziomy proporcjonalnie
+      document.getElementById('entryLevel').textContent = price.toFixed(2);
+      document.getElementById('ppLevel').textContent = (levels.pp * ratio).toFixed(2);
+      document.getElementById('r1Level').textContent = (levels.r1 * ratio).toFixed(2);
+      document.getElementById('r2Level').textContent = (levels.r2 * ratio).toFixed(2);
+      document.getElementById('s1Level').textContent = (levels.s1 * ratio).toFixed(2);
+      document.getElementById('s2Level').textContent = (levels.s2 * ratio).toFixed(2);
+      document.getElementById('tp1Level').textContent = (levels.r1 * ratio).toFixed(2);
+      document.getElementById('tp2Level').textContent = (levels.r2 * ratio).toFixed(2);
+      document.getElementById('liqALevel').textContent = (levels.liqA * ratio).toFixed(2);
+      document.getElementById('liqBLevel').textContent = (levels.liqB * ratio).toFixed(2);
+      document.getElementById('vwapLevel').textContent = (levels.pp * ratio).toFixed(2);
     }
+  } catch(e) {
+    console.log('Refresh failed:', e);
+    document.getElementById('refreshStatus').textContent = 'Auto-refresh: OFF (błąd API) | ' + new Date().toLocaleTimeString('pl-PL');
+  }
 }
 
-updateRadar();
-setInterval(updateRadar, 60000);
+fetchLivePrice();
+setInterval(fetchLivePrice, 60000);
+
+function toggleTheme() {
+  const html = document.documentElement;
+  html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+  if(tab === 'chart') setTimeout(drawChart, 10);
+}
+
+function toggleSeries(name) {
+  visibleSeries[name] = !visibleSeries[name];
+  document.querySelector('.legend-item[data-series="'+name+'"]').classList.toggle('hidden', !visibleSeries[name]);
+  drawChart();
+}
+
+const tbody = document.getElementById('eventsBody');
+events.forEach(e => {
+  const icls = e.i === 'high' ? 'impact-high' : e.i === 'medium' ? 'impact-medium' : 'impact-low';
+  const itxt = e.i === 'high' ? 'WYSOKI' : e.i === 'medium' ? 'ŚREDNI' : 'NISKI';
+  const row = document.createElement('tr');
+  row.innerHTML = `<td>${e.d}</td><td>${e.t}</td><td>${e.e}</td><td><span class="impact-dot ${icls}"></span>${itxt}</td><td>${e.f}</td><td>${e.p}</td>`;
+  tbody.appendChild(row);
+});
+
+function drawChart() {
+  const svg = document.getElementById('mainSvg');
+  const wrap = document.getElementById('chartWrap');
+  const W = wrap.clientWidth, H = wrap.clientHeight;
+  const padL = 55, padR = 10, padT = 10, padB = 35;
+  const cw = W - padL - padR, ch = H - padT - padB;
+  const volH = Math.floor(ch * 0.18);
+  const priceH = ch - volH;
+
+  const prices = ohlcData.map(d => [d.l, d.h]).flat();
+  const minP = Math.min(...prices) * 0.998;
+  const maxP = Math.max(...prices) * 1.002;
+  const range = maxP - minP;
+  const volMax = Math.max(...ohlcData.map(d => d.v)) * 1.5;
+
+  const y = p => padT + priceH - ((p - minP) / range) * priceH;
+  const x = i => padL + (i / (ohlcData.length - 1)) * cw;
+  const vy = v => padT + priceH + volH - (v / volMax) * volH;
+
+  let svgHTML = '';
+
+  for(let i = 0; i <= 6; i++) {
+    const py = padT + (priceH / 6) * i;
+    svgHTML += `<line x1="${padL}" y1="${py}" x2="${W-padR}" y2="${py}" stroke="var(--border)" stroke-width="0.5" opacity="0.5"/>`;
+    const pr = maxP - (range / 6) * i;
+    svgHTML += `<text x="${padL-6}" y="${py+3}" text-anchor="end" fill="var(--text-dim)" font-size="10">${pr.toFixed(1)}</text>`;
+  }
+
+  const barW = (cw / ohlcData.length) * 0.7;
+  ohlcData.forEach((d, i) => {
+    const cx = x(i);
+    const vcol = d.c >= d.o ? 'var(--green)' : 'var(--red)';
+    svgHTML += `<rect x="${cx - barW/2}" y="${vy(d.v)}" width="${barW}" height="${volH - (vy(d.v) - padT - priceH)}" fill="${vcol}" opacity="0.25"/>`;
+  });
+
+  let vpath = '';
+  let vstarted = false;
+  const volSMA = ohlcData.map((d,i,arr) => {
+    if(i < 9) return null;
+    let sum = 0; for(let j=i-9;j<=i;j++) sum += arr[j].v;
+    return sum / 10;
+  });
+  volSMA.forEach((v,i) => {
+    if(v === null) return;
+    const px = x(i), py = vy(v);
+    if(!vstarted) { vpath += `M ${px} ${py}`; vstarted = true; }
+    else vpath += ` L ${px} ${py}`;
+  });
+  if(vpath) svgHTML += `<path d="${vpath}" fill="none" stroke="var(--text-dim)" stroke-width="1" opacity="0.5"/>`;
+
+  ohlcData.forEach((d, i) => {
+    const cx = x(i);
+    const oY = y(d.o), cY = y(d.c), hY = y(d.h), lY = y(d.l);
+    const green = d.c >= d.o;
+    const col = green ? 'var(--green)' : 'var(--red)';
+    const bodyH = Math.max(1, Math.abs(cY - oY));
+    const bodyTop = Math.min(oY, cY);
+    svgHTML += `<line x1="${cx}" y1="${hY}" x2="${cx}" y2="${lY}" stroke="${col}" stroke-width="1"/>`;
+    svgHTML += `<rect x="${cx - barW/2}" y="${bodyTop}" width="${barW}" height="${bodyH}" fill="${col}" rx="1"/>`;
+  });
+
+  if(visibleSeries.sma20) {
+    let path = '';
+    let started = false;
+    sma20Data.forEach(d => {
+      const idx = ohlcData.findIndex(o => o.d === d.d);
+      if(idx >= 0) {
+        const px = x(idx), py = y(d.v);
+        if(!started) { path += `M ${px} ${py}`; started = true; }
+        else path += ` L ${px} ${py}`;
+      }
+    });
+    if(path) svgHTML += `<path d="${path}" fill="none" stroke="var(--green)" stroke-width="1.5"/>`;
+  }
+
+  if(visibleSeries.sma50) {
+    let path = '';
+    let started = false;
+    sma50Data.forEach(d => {
+      const idx = ohlcData.findIndex(o => o.d === d.d);
+      if(idx >= 0) {
+        const px = x(idx), py = y(d.v);
+        if(!started) { path += `M ${px} ${py}`; started = true; }
+        else path += ` L ${px} ${py}`;
+      }
+    });
+    if(path) svgHTML += `<path d="${path}" fill="none" stroke="var(--blue)" stroke-width="1.5"/>`;
+  }
+
+  if(visibleSeries.vwap) {
+    let path = '';
+    let started = false;
+    vwapData.forEach(d => {
+      const idx = ohlcData.findIndex(o => o.d === d.d);
+      if(idx >= 0) {
+        const px = x(idx), py = y(d.v);
+        if(!started) { path += `M ${px} ${py}`; started = true; }
+        else path += ` L ${px} ${py}`;
+      }
+    });
+    if(path) svgHTML += `<path d="${path}" fill="none" stroke="var(--purple)" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+  }
+
+  if(visibleSeries.ichi) {
+    let tpath = '';
+    let started = false;
+    ichiData.forEach(d => {
+      const idx = ohlcData.findIndex(o => o.d === d.d);
+      if(idx >= 0) {
+        const px = x(idx), py = y(d.t);
+        if(!started) { tpath += `M ${px} ${py}`; started = true; }
+        else tpath += ` L ${px} ${py}`;
+      }
+    });
+    if(tpath) svgHTML += `<path d="${tpath}" fill="none" stroke="var(--cyan)" stroke-width="1" opacity="0.7"/>`;
+    let kpath = '';
+    started = false;
+    ichiData.forEach(d => {
+      const idx = ohlcData.findIndex(o => o.d === d.d);
+      if(idx >= 0) {
+        const px = x(idx), py = y(d.k);
+        if(!started) { kpath += `M ${px} ${py}`; started = true; }
+        else kpath += ` L ${px} ${py}`;
+      }
+    });
+    if(kpath) svgHTML += `<path d="${kpath}" fill="none" stroke="var(--orange)" stroke-width="1" opacity="0.7"/>`;
+  }
+
+  if(visibleSeries.liq) {
+    const liqs = [levels.liqA, levels.liqB];
+    liqs.forEach(l => {
+      if(l >= minP && l <= maxP) {
+        const py = y(l);
+        svgHTML += `<line x1="${padL}" y1="${py}" x2="${W-padR}" y2="${py}" stroke="var(--yellow)" stroke-width="1" stroke-dasharray="5,4"/>`;
+        svgHTML += `<text x="${W-padR-4}" y="${py-4}" text-anchor="end" fill="var(--yellow)" font-size="9" font-weight="600">LIQ ${l.toFixed(1)}</text>`;
+      }
+    });
+  }
+
+  if(visibleSeries.rs) {
+    const lvls = [
+      {p:levels.r1,c:'var(--red)',l:'R1'}, {p:levels.r2,c:'var(--red)',l:'R2'},
+      {p:levels.s1,c:'var(--green)',l:'S1'}, {p:levels.s2,c:'var(--green)',l:'S2'},
+      {p:levels.pp,c:'var(--blue)',l:'PP'}
+    ];
+    lvls.forEach(lv => {
+      if(lv.p >= minP && lv.p <= maxP) {
+        const py = y(lv.p);
+        svgHTML += `<line x1="${padL}" y1="${py}" x2="${W-padR}" y2="${py}" stroke="${lv.c}" stroke-width="0.8" stroke-dasharray="3,3" opacity="0.8"/>`;
+        svgHTML += `<text x="${padL+4}" y="${py-4}" fill="${lv.c}" font-size="9" font-weight="600">${lv.l} ${lv.p.toFixed(1)}</text>`;
+      }
+    });
+  }
+
+  svgHTML += `<line x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}" stroke="var(--border)" stroke-width="0.5"/>`;
+  for(let i = 0; i < ohlcData.length; i += Math.ceil(ohlcData.length / 8)) {
+    const cx = x(i);
+    svgHTML += `<text x="${cx}" y="${H-10}" text-anchor="middle" fill="var(--text-dim)" font-size="9">${ohlcData[i].d.slice(5)}</text>`;
+  }
+
+  svg.innerHTML = svgHTML;
+}
+
+drawChart();
+window.addEventListener('resize', drawChart);
 </script>
 </body>
 </html>
