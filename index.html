@@ -1,705 +1,421 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="pl" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#000000">
-<title>ViralCut ULTIMATE — Auto Shorts Maker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XAUUSD Predictor</title>
 <style>
-:root {
-  --bg: #000000;
-  --surface: #0a0a0a;
-  --surface-2: #141414;
-  --surface-3: #1e1e1e;
-  --text: #ffffff;
-  --muted: #888888;
-  --accent: #ff0050;
-  --accent-2: #00f2ea;
-  --success: #00ff88;
-  --warning: #ffaa00;
-  --radius: 24px;
-}
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.5;
-  min-height: 100vh;
-  padding-bottom: 80px;
-}
-.header {
-  background: linear-gradient(180deg, rgba(255,0,80,0.08), transparent);
-  padding: 28px 16px 16px;
-  text-align: center;
-  border-bottom: 1px solid #1a1a1a;
-  position: sticky;
-  top: 0;
-  backdrop-filter: blur(20px);
-  z-index: 100;
-}
-.header h1 {
-  font-size: 30px;
-  font-weight: 900;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: -1px;
-}
-.header p { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-top: 4px; }
-
-.container { padding: 16px; max-width: 680px; margin: 0 auto; }
-
-/* Mode Switch */
-.mode-switch {
-  display: flex;
-  background: var(--surface);
-  border: 1px solid #222;
-  border-radius: var(--radius);
-  padding: 6px;
-  margin-bottom: 16px;
-  gap: 6px;
-}
-.mode-btn {
-  flex: 1;
-  padding: 14px;
-  background: transparent;
-  border: none;
-  border-radius: 18px;
-  color: var(--muted);
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-align: center;
-}
-.mode-btn.active {
-  background: linear-gradient(135deg, rgba(255,0,80,0.25), rgba(0,242,234,0.1));
-  color: var(--text);
-  box-shadow: 0 4px 20px rgba(255,0,80,0.15);
-}
-
-/* Cards */
-.card {
-  background: var(--surface);
-  border: 1px solid #1f1f1f;
-  border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 16px;
-}
-.card-title {
-  font-size: 16px;
-  font-weight: 800;
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Inputs */
-input[type="text"], input[type="url"] {
-  width: 100%;
-  background: var(--surface-2);
-  border: 1px solid #333;
-  border-radius: 16px;
-  padding: 16px;
-  color: var(--text);
-  font-size: 16px;
-  outline: none;
-  transition: all 0.2s;
-  font-family: inherit;
-}
-input[type="text"]:focus, input[type="url"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,0,80,0.1); }
-
-.hint {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 8px;
-  line-height: 1.4;
-}
-
-/* Upload */
-.upload-zone {
-  border: 2px dashed #333;
-  border-radius: var(--radius);
-  padding: 40px 20px;
-  text-align: center;
-  background: var(--surface);
-  transition: all 0.3s;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-.upload-zone:hover, .upload-zone.dragover {
-  border-color: var(--accent);
-  background: rgba(255,0,80,0.04);
-}
-.upload-zone .icon { font-size: 44px; margin-bottom: 10px; opacity: 0.6; }
-.upload-zone h3 { font-size: 17px; margin-bottom: 6px; }
-.upload-zone p { font-size: 13px; color: var(--muted); }
-.upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-
-/* Buttons */
-.btn {
-  width: 100%;
-  padding: 18px;
-  background: linear-gradient(135deg, var(--accent), #d10040);
-  color: white;
-  border: none;
-  border-radius: 20px;
-  font-size: 16px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: transform 0.1s, opacity 0.2s;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-.btn:active { transform: scale(0.97); }
-.btn:disabled { opacity: 0.35; cursor: not-allowed; }
-.btn-secondary {
-  background: var(--surface-2);
-  border: 1px solid #444;
-  color: var(--text);
-}
-.btn-success { background: linear-gradient(135deg, var(--success), #00aa55); }
-.btn-yt { background: linear-gradient(135deg, #ff0000, #cc0000); }
-
-/* Progress */
-.progress-card {
-  background: var(--surface);
-  border: 1px solid #1f1f1f;
-  border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 16px;
-  display: none;
-}
-.progress-card.active { display: block; }
-.progress-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-.progress-title { font-size: 15px; font-weight: 700; }
-.progress-percent { font-size: 15px; font-weight: 800; color: var(--accent-2); }
-.progress-bar-wrap {
-  height: 8px;
-  background: #222;
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 10px;
-}
-.progress-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  width: 0%;
-  transition: width 0.4s ease;
-  border-radius: 4px;
-}
-.progress-log {
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.6;
-  max-height: 140px;
-  overflow-y: auto;
-}
-.progress-log .ok { color: var(--success); }
-.progress-log .warn { color: var(--warning); }
-.progress-log .err { color: #ff4444; }
-
-/* Video Meta */
-.video-meta {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-bottom: 12px;
-}
-.video-thumb {
-  width: 100px; height: 56px; border-radius: 12px; background: #222; object-fit: cover;
-}
-.video-info h4 { font-size: 15px; font-weight: 700; line-height: 1.3; }
-.video-info p { font-size: 12px; color: var(--muted); margin-top: 4px; }
-
-/* Short Cards */
-.shorts-section { display: none; }
-.shorts-section.active { display: block; }
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-  padding: 0 4px;
-}
-.section-header h2 { font-size: 20px; }
-.section-header span { font-size: 13px; color: var(--muted); }
-
-.short-card {
-  background: var(--surface-2);
-  border: 1px solid #252525;
-  border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 16px;
-  position: relative;
-  overflow: hidden;
-}
-.short-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-}
-.short-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-.short-rank { font-size: 26px; font-weight: 900; color: #222; line-height: 1; }
-.viral-score {
-  background: rgba(255,0,80,0.12);
-  color: var(--accent);
-  padding: 6px 14px;
-  border-radius: 50px;
-  font-size: 13px;
-  font-weight: 800;
-  border: 1px solid rgba(255,0,80,0.25);
-}
-.viral-score.hot {
-  background: rgba(0,242,234,0.12);
-  color: var(--accent-2);
-  border-color: rgba(0,242,234,0.25);
-}
-.hook-text {
-  font-size: 17px;
-  font-weight: 800;
-  line-height: 1.35;
-  margin-bottom: 12px;
-  padding: 16px;
-  background: rgba(255,0,80,0.04);
-  border-radius: 16px;
-  border-left: 4px solid var(--accent);
-}
-.time-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #1a1a1a;
-  padding: 8px 14px;
-  border-radius: 50px;
-  font-size: 14px;
-  font-weight: 700;
-  font-family: 'SF Mono', monospace;
-  margin-bottom: 12px;
-  border: 1px solid #333;
-}
-
-/* Preview */
-.preview-box {
-  width: 100%;
-  max-width: 220px;
-  aspect-ratio: 9/16;
-  margin: 0 auto 14px;
-  border-radius: 16px;
-  overflow: hidden;
-  background: #000;
-  border: 1px solid #333;
-  position: relative;
-}
-.preview-box iframe, .preview-box video {
-  width: 100%; height: 100%; border: none; object-fit: cover;
-}
-.preview-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,0.7);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--accent-2);
-}
-
-/* Action Grid */
-.action-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-.action-grid .btn { padding: 14px; font-size: 13px; margin-bottom: 0; }
-
-/* SRT Box */
-.srt-box {
-  background: #000;
-  border: 1px solid #333;
-  border-radius: 12px;
-  padding: 14px;
-  font-family: monospace;
-  font-size: 12px;
-  color: #aaa;
-  max-height: 160px;
-  overflow-y: auto;
-  line-height: 1.8;
-  margin-top: 12px;
-  display: none;
-  white-space: pre-wrap;
-}
-.srt-box.show { display: block; }
-
-/* Toast */
-.toast {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%) translateY(120px);
-  background: var(--surface-2);
-  border: 1px solid #444;
-  color: var(--text);
-  padding: 16px 28px;
-  border-radius: 50px;
-  font-size: 14px;
-  font-weight: 700;
-  z-index: 3000;
-  opacity: 0;
-  transition: all 0.35s;
-  pointer-events: none;
-  white-space: nowrap;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-}
-.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-
-/* Pro Banner */
-.pro-banner {
-  background: linear-gradient(135deg, rgba(255,0,80,0.08), rgba(0,242,234,0.05));
-  border: 1px solid rgba(255,0,80,0.2);
-  border-radius: var(--radius);
-  padding: 20px;
-  text-align: center;
-  margin-bottom: 16px;
-}
-.pro-banner h3 { margin-bottom: 6px; }
-.pro-banner p { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
-
-/* Modal */
-.modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.88);
-  z-index: 2000;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  backdrop-filter: blur(12px);
-}
-.modal.active { display: flex; }
-.modal-box {
-  background: var(--surface);
-  border: 1px solid #333;
-  border-radius: var(--radius);
-  padding: 24px;
-  max-width: 420px;
-  width: 100%;
-}
-.modal-title { font-size: 20px; font-weight: 800; margin-bottom: 12px; }
-
-/* Speed badge */
-.speed-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(0,242,234,0.1);
-  color: var(--accent-2);
-  padding: 8px 14px;
-  border-radius: 50px;
-  font-size: 13px;
-  font-weight: 700;
-  margin-bottom: 12px;
-  border: 1px solid rgba(0,242,234,0.2);
-}
-
-.hidden { display: none !important; }
+:root[data-theme="dark"]{--bg:#0d1117;--bg-card:#161b22;--bg-hover:#1c2128;--border:#30363d;--text:#c9d1d9;--text-dim:#8b949e;--text-bright:#f0f6fc;--green:#3fb950;--red:#f85149;--blue:#58a6ff;--yellow:#d29922;--purple:#a371f7;--orange:#f0883e;--cyan:#39d0d8}
+:root[data-theme="light"]{--bg:#fff;--bg-card:#f6f8fa;--bg-hover:#f3f4f6;--border:#d0d7de;--text:#24292f;--text-dim:#656d76;--text-bright:#1f2328;--green:#1a7f37;--red:#cf222e;--blue:#0969da;--yellow:#9a6700;--purple:#8250df;--orange:#bc4c00;--cyan:#1b7e74}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;transition:background .3s,color .3s}
+.container{max-width:1440px;margin:0 auto;padding:16px}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);margin-bottom:20px;flex-wrap:wrap;gap:12px}
+header h1{font-size:22px;font-weight:600;color:var(--text-bright);display:flex;align-items:center;gap:10px}
+.gold-icon{width:32px;height:32px;background:linear-gradient(135deg,#ffd700,#ffaa00);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#1a1a1a;box-shadow:0 0 10px rgba(255,170,0,.3)}
+.theme-toggle{padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);color:var(--text);cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.theme-toggle:hover{border-color:var(--blue)}
+.last-update{color:var(--text-dim);font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-bottom:14px}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px;transition:border-color .2s,box-shadow .2s}
+.card:hover{border-color:var(--blue);box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.card-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-dim);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.big-number{font-size:32px;font-weight:700;color:var(--text-bright);font-variant-numeric:tabular-nums}
+.sub-info{font-size:12px;color:var(--text-dim);margin-top:4px}
+.signal-badge{display:inline-block;padding:5px 14px;border-radius:20px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.signal-buy{background:rgba(47,185,80,.15);color:var(--green);border:1px solid rgba(47,185,80,.3)}
+.signal-sell{background:rgba(248,81,73,.15);color:var(--red);border:1px solid rgba(248,81,73,.3)}
+.signal-wait{background:rgba(139,148,158,.15);color:var(--text-dim);border:1px solid rgba(139,148,158,.3)}
+.signal-strong-buy{background:rgba(47,185,80,.25);color:var(--green);border:2px solid var(--green);box-shadow:0 0 12px rgba(47,185,80,.2)}
+.signal-strong-sell{background:rgba(248,81,73,.25);color:var(--red);border:2px solid var(--red);box-shadow:0 0 12px rgba(248,81,73,.2)}
+.levels-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.level-row{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--bg);border-radius:6px;font-size:13px}
+.level-label{color:var(--text-dim);font-size:12px}
+.level-value{font-weight:600;font-variant-numeric:tabular-nums;font-size:13px}
+.level-value.res{color:var(--red)}.level-value.sup{color:var(--green)}.level-value.pp{color:var(--blue)}.level-value.liq{color:var(--yellow)}.level-value.fib{color:var(--purple)}
+.chart-wrap{position:relative;width:100%;height:480px;background:var(--bg);border-radius:8px;overflow:hidden;margin-top:10px;border:1px solid var(--border)}
+.chart-legend{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;font-size:11px}
+.legend-item{display:flex;align-items:center;gap:5px;color:var(--text-dim);cursor:pointer;user-select:none}
+.legend-item.hidden{opacity:.4}
+.legend-dot{width:9px;height:9px;border-radius:2px}
+.trend-indicator{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600}
+.trend-up{background:rgba(47,185,80,.12);color:var(--green)}.trend-down{background:rgba(248,81,73,.12);color:var(--red)}.trend-neutral{background:rgba(139,148,158,.12);color:var(--text-dim)}
+.trend-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.trend-row:last-child{border-bottom:none}
+.events-table{width:100%;border-collapse:collapse;font-size:12px}
+.events-table th{text-align:left;padding:9px 10px;color:var(--text-dim);font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+.events-table td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text)}
+.events-table tr:hover td{background:var(--bg-hover)}
+.impact-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px}
+.impact-high{background:var(--red);box-shadow:0 0 5px rgba(248,81,73,.4)}.impact-medium{background:var(--yellow)}.impact-low{background:var(--green)}
+.progress-bar{width:100%;height:5px;background:var(--bg);border-radius:3px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;border-radius:3px;transition:width .5s ease}
+.score-display{display:flex;align-items:center;gap:12px;margin-top:10px}
+.score-circle{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;border:3px solid}
+.score-green{border-color:var(--green);color:var(--green)}.score-red{border-color:var(--red);color:var(--red)}.score-gray{border-color:var(--text-dim);color:var(--text-dim)}
+.zone-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;margin-right:4px;margin-bottom:4px}
+.zone-liquidity{background:rgba(210,153,34,.15);color:var(--yellow)}.zone-fvg{background:rgba(163,113,247,.15);color:var(--purple)}.zone-ob{background:rgba(88,166,255,.15);color:var(--blue)}.zone-bos{background:rgba(57,208,216,.15);color:var(--cyan)}
+.tab-bar{display:flex;gap:4px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:0;overflow-x:auto}
+.tab-btn{padding:7px 14px;background:none;border:none;color:var(--text-dim);font-size:12px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-family:inherit;white-space:nowrap}
+.tab-btn:hover{color:var(--text)}.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.indicators-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.indicator-box{background:var(--bg);padding:10px;border-radius:8px;text-align:center}
+.indicator-value{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.indicator-label{font-size:10px;color:var(--text-dim);margin-top:3px;text-transform:uppercase;letter-spacing:.3px}
+.rr-badge{display:inline-block;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;background:rgba(88,166,255,.12);color:var(--blue)}
+.full-width{grid-column:1/-1}
+.analysis-text{padding:10px 0;font-size:13px;line-height:1.7;color:var(--text)}
+.analysis-text h3{color:var(--text-bright);margin-bottom:10px;font-size:15px}
+.analysis-text p{margin-bottom:10px}
+.analysis-text strong{color:var(--text-bright)}
+.footer{text-align:center;padding:20px 0;color:var(--text-dim);font-size:11px;border-top:1px solid var(--border);margin-top:20px}
+@media(max-width:768px){.grid{grid-template-columns:1fr}.levels-grid{grid-template-columns:1fr}.indicators-grid{grid-template-columns:1fr}.big-number{font-size:26px}header{flex-direction:column;align-items:flex-start}.chart-wrap{height:360px}}
 </style>
+<base target="_blank">
 </head>
 <body>
-
-<header class="header">
-  <h1>⚡ ViralCut ULTIMATE</h1>
-  <p>Auto Shorts Maker — YouTube + Local</p>
+<div class="container">
+<header>
+<h1><span class="gold-icon">Au</span> XAUUSD Predictor</h1>
+<div style="display:flex;align-items:center;gap:12px;">
+<span class="last-update">2026-08-04 | D1</span>
+<button class="theme-toggle" onclick="toggleTheme()">🌓 Tryb</button>
+</div>
 </header>
 
-<div class="container">
-
-  <!-- PRO BANNER -->
-  <div id="proBanner" class="pro-banner">
-    <h3>🔒 Odblokuj PRO</h3>
-    <p>YouTube: nieograniczone shorty. Local: 1080p, WebGPU speed</p>
-    <button class="btn" onclick="showProModal()">AKTYWUJ PRO</button>
-  </div>
-
-  <!-- MODE SWITCH -->
-  <div class="mode-switch">
-    <button class="mode-btn active" id="btnLocal" onclick="setMode('local')">📁 Plik lokalny</button>
-    <button class="mode-btn" id="btnYoutube" onclick="setMode('youtube')">🔗 YouTube Link</button>
-  </div>
-
-  <!-- LOCAL MODE -->
-  <div id="localMode">
-    <div class="card">
-      <div class="speed-badge">🐢 Wolniejsze — AI liczy audio na telefonie</div>
-      <div class="upload-zone" id="uploadZone">
-        <input type="file" id="fileInput" accept="video/*" onchange="handleFile(event)">
-        <div class="icon">🎬</div>
-        <h3>Dotknij by wybrać wideo</h3>
-        <p>Max ~5 minut dla szybkości · MP4, MOV, WEBM</p>
-      </div>
-      <div id="localMeta" class="hidden">
-        <div class="video-meta" style="margin-top:16px;">
-          <video id="sourceVideo" style="width:100px;height:56px;border-radius:12px;object-fit:cover;background:#222;" muted playsinline></video>
-          <div class="video-info">
-            <h4 id="fileName">video.mp4</h4>
-            <p id="fileSize">0 MB · 0:00</p>
-          </div>
-        </div>
-        <button class="btn" id="localStartBtn" onclick="startLocal()">🚀 START TRANSSKRYPCJA</button>
-        <button class="btn btn-secondary" onclick="resetLocal()">🗑 Wyczyść</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- YOUTUBE MODE -->
-  <div id="youtubeMode" class="hidden">
-    <div class="card">
-      <div class="speed-badge">⚡ Błyskawiczne — pobiera gotowe napisy z YouTube</div>
-      <div style="margin-bottom:14px;">
-        <label style="display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;">Link do YouTube</label>
-        <input type="url" id="ytLinkInput" placeholder="https://youtube.com/watch?v=... lub youtu.be/...">
-        <div class="hint">
-          📋 Wklej link do filmu który ma napisy (większość ma auto-napisy).<br>
-          ⚡ Działa z filmami 1 sekundy do 10 godzin. Telefon możesz wyłączyć po kliknięciu.
-        </div>
-      </div>
-      <button class="btn btn-yt" id="ytStartBtn" onclick="startYouTube()">⚡ POBIERZ NAPISY + ANALIZA</button>
-    </div>
-  </div>
-
-  <!-- PROGRESS -->
-  <div class="progress-card" id="progressCard">
-    <div class="progress-header">
-      <span class="progress-title" id="progressTitle">Przygotowanie...</span>
-      <span class="progress-percent" id="progressPercent">0%</span>
-    </div>
-    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
-    <div class="progress-log" id="progressLog">Czekam na start...</div>
-  </div>
-
-  <!-- YT VIDEO PREVIEW -->
-  <div id="ytPreviewCard" class="card hidden">
-    <div class="video-meta">
-      <img id="ytThumb" src="" class="video-thumb" style="display:none;" onerror="this.style.display='none'">
-      <div class="video-info">
-        <h4 id="ytTitle">Tytuł wideo</h4>
-        <p id="ytChannel">Kanał</p>
-      </div>
-    </div>
-    <div class="preview-box" style="aspect-ratio:16/9;max-width:100%;">
-      <iframe id="ytFrame" src="" allowfullscreen style="width:100%;height:100%;border:none;"></iframe>
-    </div>
-  </div>
-
-  <!-- SHORTS RESULTS -->
-  <div class="shorts-section" id="shortsSection">
-    <div class="section-header">
-      <h2>🎯 Gotowe shorty</h2>
-      <span id="shortsCount">0 znalezionych</span>
-    </div>
-    <div id="shortsList"></div>
-  </div>
-
-  <!-- HIDDEN CANVAS FOR LOCAL RENDER -->
-  <canvas id="renderCanvas" style="display:none;"></canvas>
-
+<div class="grid">
+<div class="card">
+<div class="card-title">Aktualna cena XAU/USD</div>
+<div class="big-number">4142.8</div>
+<div class="sub-info">ATH: <span style="color:var(--green)">5586.2</span> | 52W Low: <span style="color:var(--red)">2367.4</span> | ATR(14): 61.74</div>
+</div>
+<div class="card">
+<div class="card-title">Rekomendacja algorytmu</div>
+<div style="display:flex;align-items:center;gap:10px;margin-top:2px;flex-wrap:wrap;">
+<span class="signal-badge signal-buy">BUY</span>
+<span class="rr-badge">RR: 0.6</span>
+</div>
+<div class="score-display">
+<div class="score-circle score-green">4</div>
+<div style="flex:1;">
+<div style="font-size:12px;color:var(--text-dim);">Punktacja (max 9)</div>
+<div class="progress-bar"><div class="progress-fill" style="width:72.22222222222221%;background:var(--green)"></div></div>
+</div>
+</div>
+</div>
 </div>
 
-<!-- PRO MODAL -->
-<div class="modal" id="proModal">
-  <div class="modal-box">
-    <div class="modal-title">🔓 Aktywuj PRO</div>
-    <p style="color:var(--muted);font-size:14px;margin-bottom:16px;">Wpisz kod z Gumroad</p>
-    <input type="text" id="proCode" placeholder="Kod PRO..." style="width:100%;background:var(--surface-2);border:1px solid #333;border-radius:16px;padding:16px;color:var(--text);font-size:16px;margin-bottom:12px;">
-    <button class="btn" onclick="activatePro()">AKTYWUJ</button>
-    <button class="btn btn-secondary" onclick="closeProModal()" style="margin-top:8px;">Anuluj</button>
-  </div>
+<div class="grid">
+<div class="card">
+<div class="card-title">Poziomy kluczowe</div>
+<div class="levels-grid">
+<div class="level-row"><span class="level-label">Entry</span><span class="level-value pp">4142.8</span></div>
+<div class="level-row"><span class="level-label">Stop Loss</span><span class="level-value res">4111.04</span></div>
+<div class="level-row"><span class="level-label">Take Profit 1</span><span class="level-value sup">4161.74</span></div>
+<div class="level-row"><span class="level-label">Take Profit 2</span><span class="level-value sup">4180.67</span></div>
+<div class="level-row"><span class="level-label">Pivot Point</span><span class="level-value pp">4129.97</span></div>
+<div class="level-row"><span class="level-label">R1</span><span class="level-value res">4161.74</span></div>
+<div class="level-row"><span class="level-label">R2</span><span class="level-value res">4180.67</span></div>
+<div class="level-row"><span class="level-label">S1</span><span class="level-value sup">4111.04</span></div>
+<div class="level-row"><span class="level-label">S2</span><span class="level-value sup">4079.27</span></div>
+<div class="level-row"><span class="level-label">Liq Above</span><span class="level-value liq">5586.2</span></div>
+<div class="level-row"><span class="level-label">Liq Below</span><span class="level-value liq">2554.2</span></div>
+<div class="level-row"><span class="level-label">VWAP</span><span class="level-value pp">3615.69</span></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title">Wskazniki techniczne</div>
+<div class="indicators-grid">
+<div class="indicator-box"><div class="indicator-value" style="color:var(--green)">57.8</div><div class="indicator-label">RSI (14)</div></div>
+<div class="indicator-box"><div class="indicator-value" style="color:var(--green)">16.31</div><div class="indicator-label">MACD Hist</div></div>
+<div class="indicator-box"><div class="indicator-value" style="color:var(--green)">-26.77</div><div class="indicator-label">MACD</div></div>
+<div class="indicator-box"><div class="indicator-value">18.5</div><div class="indicator-label">ADX (RANGE)</div></div>
+<div class="indicator-box"><div class="indicator-value">4152.86</div><div class="indicator-label">BB Upper</div></div>
+<div class="indicator-box"><div class="indicator-value">3969.11</div><div class="indicator-label">BB Lower</div></div>
+<div class="indicator-box"><div class="indicator-value">95.1</div><div class="indicator-label">Stoch %K</div></div>
+<div class="indicator-box"><div class="indicator-value" style="color:var(--green)">71.7</div><div class="indicator-label">Momentum</div></div>
+</div>
+</div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="grid">
+<div class="card">
+<div class="card-title">Trend wielointerwałowy</div>
+<div class="trend-row"><span style="font-weight:600;font-size:13px;">D1 (Dzienny)</span><span class="trend-indicator trend-bullish">▲ BULLISH</span></div>
+<div class="trend-row"><span style="font-weight:600;font-size:13px;">W1 (Tygodniowy)</span><span class="trend-indicator trend-neutral">— NEUTRAL</span></div>
+<div class="trend-row"><span style="font-weight:600;font-size:13px;">MN (Miesięczny)</span><span class="trend-indicator trend-bearish">▼ BEARISH</span></div>
+<div class="trend-row" style="border-top:2px solid var(--border);margin-top:6px;padding-top:10px;">
+<span style="font-weight:700;font-size:15px;">Dominujący kierunek</span>
+<span class="trend-indicator trend-up" style="font-size:15px;padding:5px 14px;">▲ UP</span>
+</div>
+</div>
+<div class="card">
+<div class="card-title">Strefy Smart Money</div>
+<div style="margin-bottom:10px;">
+<div style="font-size:11px;color:var(--text-dim);margin-bottom:4px;">Liquidity Zones</div>
+<div><span class="zone-tag zone-liquidity">Above: 5586.2</span><span class="zone-tag zone-liquidity">Below: 2554.2</span></div>
+</div>
+<div style="margin-bottom:10px;">
+<div style="font-size:11px;color:var(--text-dim);margin-bottom:4px;">Fair Value Gaps</div>
+<div><span class="zone-tag zone-fvg">Bull FVG: 4018.90 - 4096.20</span><span class="zone-tag zone-fvg">Bear FVG: 4017.20 - 4019.40</span></div>
+</div>
+<div>
+<div style="font-size:11px;color:var(--text-dim);margin-bottom:4px;">Order Blocks</div>
+<div><span class="zone-tag zone-ob">Bull OB: 4003.20 - 4070.00</span><span class="zone-tag zone-ob">Bear OB: 4064.20 - 4130.60</span></div>
+</div>
+</div>
+</div>
 
-<script type="module">
-import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+<div class="card full-width">
+<div class="tab-bar">
+<button class="tab-btn active" onclick="switchTab('chart',this)">Wykres</button>
+<button class="tab-btn" onclick="switchTab('events',this)">Wydarzenia</button>
+<button class="tab-btn" onclick="switchTab('analysis',this)">Analiza</button>
+</div>
 
-// ===== STATE =====
-const state = {
-  isPro: localStorage.getItem('vc_ultimate_pro') === 'true',
-  mode: 'local',
-  file: null,
-  videoUrl: null,
-  duration: 0,
-  segments: [],
-  shorts: [],
-  transcriber: null,
-  ytVideoId: null,
-  ytMeta: null
-};
+<div id="tab-chart" class="tab-panel active">
+<div class="chart-wrap" id="chartWrap">
+<svg id="mainSvg" width="100%" height="100%" style="display:block;"></svg>
+</div>
+<div class="chart-legend">
+<div class="legend-item" data-series="sma20" onclick="toggleSeries('sma20')"><div class="legend-dot" style="background:var(--green)"></div>SMA20</div>
+<div class="legend-item" data-series="sma50" onclick="toggleSeries('sma50')"><div class="legend-dot" style="background:var(--blue)"></div>SMA50</div>
+<div class="legend-item" data-series="vwap" onclick="toggleSeries('vwap')"><div class="legend-dot" style="background:var(--purple)"></div>VWAP</div>
+<div class="legend-item" data-series="liq" onclick="toggleSeries('liq')"><div class="legend-dot" style="background:var(--yellow)"></div>Liquidity</div>
+<div class="legend-item" data-series="rs" onclick="toggleSeries('rs')"><div class="legend-dot" style="background:var(--red)"></div>R/S</div>
+<div class="legend-item" data-series="ichi" onclick="toggleSeries('ichi')"><div class="legend-dot" style="background:var(--cyan)"></div>Ichimoku</div>
+</div>
+</div>
 
-// ===== DOM =====
-const $ = id => document.getElementById(id);
-const show = id => $(id).classList.add('active');
-const hide = id => $(id).classList.remove('active');
+<div id="tab-events" class="tab-panel">
+<table class="events-table">
+<thead><tr><th>Data</th><th>Godzina</th><th>Wydarzenie</th><th>Wpływ</th><th>Prognoza</th><th>Poprzednie</th></tr></thead>
+<tbody id="eventsBody"></tbody>
+</table>
+</div>
 
-// ===== INIT =====
-function init() {
-  if (state.isPro) $('proBanner').classList.add('hidden');
-  setMode('local');
+<div id="tab-analysis" class="tab-panel">
+<div class="analysis-text">
+<h3>Algorytmiczna analiza XAUUSD</h3>
+<p><strong>Scenariusz bazowy:</strong> Cena złota (4142.8) znajduje się w konsolidacji po głębokiej korekcie z ATH 5586.2. Aktualny kierunek to <strong>UP</strong>, wspierany przez wzrostowy trend dzienny.</p>
+<p><strong>Strefy płynności:</strong> Najbliższa strefa płynności powyżej ceny: <strong>5586.2</strong> (sell-side liquidity). Poniżej: <strong>2554.2</strong> (buy-side liquidity). Cena może dążyć do wybicia tych stref przed kontynuacją.</p>
+<p><strong>Wskaźniki:</strong> RSI (57.8) w strefie neutralnej. MACD histogram (16.31) - dodatni, sygnał wzrostowy. ADX (18.5) - RANGE.</p>
+<p><strong>Rekomendacja:</strong> BUY. Entry: 4142.8, SL: 4111.04, TP1: 4161.74, TP2: 4180.67. Risk/Reward: 0.6.</p>
+<p><strong>Interwał:</strong> D1 (dzienny) jest optymalny dla tego setupu. Dla potwierdzenia wejścia można zejść na H4.</p>
+<p style="color:var(--text-dim);margin-top:14px;font-size:11px;">⚠️ To narzędzie edukacyjne. Nie stanowi porady inwestycyjnej. Zawsze zarządzaj ryzykiem (max 1-2% kapitału na pozycję) i używaj stop-loss.</p>
+</div>
+</div>
+</div>
+
+<div class="footer">
+XAUUSD Predictor v1.0 | Smart Money + Ichimoku + Multi-Timeframe | Dane: Yahoo Finance
+</div>
+</div>
+
+<script>
+const ohlcData = [{"d": "2026-02-11", "o": 5049.9, "h": 5111.3, "l": 5041.3, "c": 5071.6, "v": 2681}, {"d": "2026-02-12", "o": 5060.4, "h": 5078.1, "l": 4892.0, "c": 4923.7, "v": 484}, {"d": "2026-02-13", "o": 4953.0, "h": 5043.9, "l": 4946.2, "c": 5022.0, "v": 232}, {"d": "2026-02-17", "o": 5020.0, "h": 5020.0, "l": 4847.8, "c": 4882.9, "v": 540}, {"d": "2026-02-18", "o": 4872.2, "h": 4987.0, "l": 4869.5, "c": 4986.5, "v": 544}, {"d": "2026-02-19", "o": 5014.7, "h": 5014.7, "l": 4975.9, "c": 4975.9, "v": 37}, {"d": "2026-02-20", "o": 5039.5, "h": 5072.7, "l": 5039.5, "c": 5059.3, "v": 134}, {"d": "2026-02-23", "o": 5120.3, "h": 5211.6, "l": 5120.3, "c": 5204.7, "v": 779}, {"d": "2026-02-24", "o": 5158.8, "h": 5159.0, "l": 5112.7, "c": 5155.8, "v": 88}, {"d": "2026-02-25", "o": 5166.0, "h": 5206.4, "l": 5166.0, "c": 5206.4, "v": 1772}, {"d": "2026-02-26", "o": 5177.2, "h": 5199.2, "l": 5143.9, "c": 5176.5, "v": 1520}, {"d": "2026-02-27", "o": 5186.7, "h": 5280.0, "l": 5176.7, "c": 5230.5, "v": 354}, {"d": "2026-03-02", "o": 5346.6, "h": 5405.0, "l": 5266.3, "c": 5294.4, "v": 72}, {"d": "2026-03-03", "o": 5298.7, "h": 5303.8, "l": 5023.0, "c": 5107.4, "v": 1776}, {"d": "2026-03-04", "o": 5130.7, "h": 5180.2, "l": 5117.2, "c": 5120.2, "v": 679}, {"d": "2026-03-05", "o": 5169.5, "h": 5169.5, "l": 5054.7, "c": 5065.3, "v": 1701}, {"d": "2026-03-06", "o": 5121.0, "h": 5146.1, "l": 5076.1, "c": 5146.1, "v": 148}, {"d": "2026-03-09", "o": 5155.0, "h": 5160.6, "l": 5077.7, "c": 5091.5, "v": 639}, {"d": "2026-03-10", "o": 5138.2, "h": 5229.7, "l": 5137.6, "c": 5229.7, "v": 4300}, {"d": "2026-03-11", "o": 5190.8, "h": 5191.3, "l": 5167.4, "c": 5167.4, "v": 633}, {"d": "2026-03-12", "o": 5137.2, "h": 5137.2, "l": 5115.8, "c": 5115.8, "v": 410}, {"d": "2026-03-13", "o": 5089.6, "h": 5117.0, "l": 5009.5, "c": 5052.5, "v": 479}, {"d": "2026-03-16", "o": 5001.6, "h": 5010.6, "l": 4994.0, "c": 4994.0, "v": 130}, {"d": "2026-03-17", "o": 5017.6, "h": 5017.6, "l": 4994.2, "c": 5001.0, "v": 239}, {"d": "2026-03-18", "o": 4949.6, "h": 4949.6, "l": 4821.7, "c": 4889.9, "v": 1461}, {"d": "2026-03-19", "o": 4830.3, "h": 4830.3, "l": 4554.0, "c": 4600.7, "v": 627}, {"d": "2026-03-20", "o": 4686.9, "h": 4686.9, "l": 4570.4, "c": 4570.4, "v": 235}, {"d": "2026-03-23", "o": 4353.0, "h": 4480.4, "l": 4100.8, "c": 4404.1, "v": 544}, {"d": "2026-03-24", "o": 4338.7, "h": 4399.3, "l": 4325.2, "c": 4399.3, "v": 378}, {"d": "2026-03-25", "o": 4549.0, "h": 4551.9, "l": 4541.8, "c": 4549.8, "v": 388}, {"d": "2026-03-26", "o": 4441.5, "h": 4443.1, "l": 4375.5, "c": 4375.5, "v": 1070}, {"d": "2026-03-27", "o": 4492.0, "h": 4492.0, "l": 4492.0, "c": 4492.0, "v": 74348}, {"d": "2026-03-30", "o": 4482.8, "h": 4579.1, "l": 4413.4, "c": 4526.0, "v": 10816}, {"d": "2026-03-31", "o": 4510.0, "h": 4684.1, "l": 4508.6, "c": 4647.6, "v": 4264}, {"d": "2026-04-01", "o": 4668.4, "h": 4789.1, "l": 4668.0, "c": 4783.2, "v": 1637}, {"d": "2026-04-02", "o": 4764.9, "h": 4784.4, "l": 4558.9, "c": 4651.5, "v": 0}, {"d": "2026-04-06", "o": 4656.1, "h": 4689.6, "l": 4605.0, "c": 4656.8, "v": 148}, {"d": "2026-04-07", "o": 4624.9, "h": 4676.3, "l": 4608.0, "c": 4657.1, "v": 327}, {"d": "2026-04-08", "o": 4760.0, "h": 4851.0, "l": 4738.8, "c": 4749.5, "v": 405}, {"d": "2026-04-09", "o": 4711.0, "h": 4799.1, "l": 4711.0, "c": 4792.2, "v": 1277}, {"d": "2026-04-10", "o": 4745.9, "h": 4791.0, "l": 4744.9, "c": 4761.9, "v": 812}, {"d": "2026-04-13", "o": 4704.0, "h": 4742.4, "l": 4704.0, "c": 4742.4, "v": 32}, {"d": "2026-04-14", "o": 4770.1, "h": 4841.6, "l": 4770.1, "c": 4825.0, "v": 288}, {"d": "2026-04-15", "o": 4843.6, "h": 4843.6, "l": 4798.0, "c": 4800.0, "v": 182}, {"d": "2026-04-16", "o": 4810.9, "h": 4810.9, "l": 4785.4, "c": 4785.4, "v": 805}, {"d": "2026-04-17", "o": 4771.6, "h": 4879.7, "l": 4767.2, "c": 4857.6, "v": 1902}, {"d": "2026-04-20", "o": 4793.9, "h": 4811.0, "l": 4770.0, "c": 4806.6, "v": 724}, {"d": "2026-04-21", "o": 4698.4, "h": 4705.0, "l": 4676.4, "c": 4698.4, "v": 1197}, {"d": "2026-04-22", "o": 4754.2, "h": 4754.2, "l": 4732.5, "c": 4732.5, "v": 765}, {"d": "2026-04-23", "o": 4711.5, "h": 4732.4, "l": 4705.1, "c": 4705.1, "v": 292}, {"d": "2026-04-24", "o": 4695.0, "h": 4722.3, "l": 4657.5, "c": 4722.3, "v": 45}, {"d": "2026-04-27", "o": 4707.6, "h": 4711.1, "l": 4675.4, "c": 4675.4, "v": 538}, {"d": "2026-04-28", "o": 4680.9, "h": 4680.9, "l": 4591.5, "c": 4591.5, "v": 2660}, {"d": "2026-04-29", "o": 4598.6, "h": 4601.6, "l": 4515.7, "c": 4545.2, "v": 507}, {"d": "2026-04-30", "o": 4561.9, "h": 4636.7, "l": 4561.9, "c": 4614.7, "v": 77}, {"d": "2026-05-01", "o": 4636.7, "h": 4636.7, "l": 4581.7, "c": 4629.9, "v": 113}, {"d": "2026-05-04", "o": 4581.2, "h": 4581.2, "l": 4512.7, "c": 4519.5, "v": 20}, {"d": "2026-05-05", "o": 4547.6, "h": 4580.5, "l": 4547.6, "c": 4555.8, "v": 426}, {"d": "2026-05-06", "o": 4663.6, "h": 4712.6, "l": 4663.6, "c": 4681.9, "v": 212}, {"d": "2026-05-07", "o": 4704.8, "h": 4736.2, "l": 4699.8, "c": 4699.8, "v": 254}, {"d": "2026-05-08", "o": 4714.4, "h": 4724.8, "l": 4713.6, "c": 4720.4, "v": 120}, {"d": "2026-05-11", "o": 4729.5, "h": 4729.5, "l": 4718.7, "c": 4718.7, "v": 36}, {"d": "2026-05-12", "o": 4762.2, "h": 4765.2, "l": 4677.6, "c": 4677.6, "v": 93}, {"d": "2026-05-13", "o": 4722.7, "h": 4722.7, "l": 4679.5, "c": 4697.7, "v": 228}, {"d": "2026-05-14", "o": 4678.1, "h": 4678.1, "l": 4650.3, "c": 4678.1, "v": 5}, {"d": "2026-05-15", "o": 4615.2, "h": 4615.2, "l": 4524.3, "c": 4555.8, "v": 607}, {"d": "2026-05-18", "o": 4563.0, "h": 4570.3, "l": 4538.7, "c": 4552.5, "v": 38}, {"d": "2026-05-19", "o": 4551.7, "h": 4552.6, "l": 4506.2, "c": 4506.3, "v": 875}, {"d": "2026-05-20", "o": 4502.6, "h": 4531.3, "l": 4465.1, "c": 4531.3, "v": 981}, {"d": "2026-05-21", "o": 4507.2, "h": 4539.8, "l": 4503.8, "c": 4539.8, "v": 426}, {"d": "2026-05-22", "o": 4519.5, "h": 4530.3, "l": 4519.1, "c": 4521.0, "v": 40}, {"d": "2026-05-26", "o": 4572.8, "h": 4572.8, "l": 4500.4, "c": 4500.4, "v": 1261}, {"d": "2026-05-27", "o": 4439.7, "h": 4447.5, "l": 4439.7, "c": 4447.5, "v": 81062}, {"d": "2026-05-28", "o": 4453.6, "h": 4512.6, "l": 4363.5, "c": 4499.3, "v": 16427}, {"d": "2026-05-29", "o": 4494.0, "h": 4591.8, "l": 4487.9, "c": 4560.5, "v": 1883}, {"d": "2026-06-01", "o": 4523.5, "h": 4541.4, "l": 4449.7, "c": 4475.2, "v": 835}, {"d": "2026-06-02", "o": 4488.0, "h": 4529.5, "l": 4474.2, "c": 4489.1, "v": 456}, {"d": "2026-06-03", "o": 4471.2, "h": 4471.7, "l": 4427.2, "c": 4436.7, "v": 2913}, {"d": "2026-06-04", "o": 4447.4, "h": 4509.9, "l": 4447.4, "c": 4475.8, "v": 480}, {"d": "2026-06-05", "o": 4472.3, "h": 4472.3, "l": 4319.1, "c": 4337.1, "v": 4062}, {"d": "2026-06-08", "o": 4324.2, "h": 4340.9, "l": 4284.6, "c": 4335.9, "v": 357}, {"d": "2026-06-09", "o": 4332.8, "h": 4344.5, "l": 4240.2, "c": 4260.0, "v": 1292}, {"d": "2026-06-10", "o": 4200.0, "h": 4206.7, "l": 4100.0, "c": 4108.2, "v": 525}, {"d": "2026-06-11", "o": 4042.9, "h": 4209.8, "l": 4031.0, "c": 4090.3, "v": 1938}, {"d": "2026-06-12", "o": 4208.3, "h": 4225.3, "l": 4173.2, "c": 4215.0, "v": 1167}, {"d": "2026-06-15", "o": 4271.2, "h": 4362.0, "l": 4269.1, "c": 4328.0, "v": 1666}, {"d": "2026-06-16", "o": 4309.5, "h": 4345.8, "l": 4309.5, "c": 4330.9, "v": 158}, {"d": "2026-06-17", "o": 4339.0, "h": 4377.0, "l": 4296.0, "c": 4358.9, "v": 1961}, {"d": "2026-06-18", "o": 4279.8, "h": 4323.2, "l": 4223.7, "c": 4224.1, "v": 738}, {"d": "2026-06-22", "o": 4138.8, "h": 4216.4, "l": 4134.8, "c": 4181.9, "v": 1197}, {"d": "2026-06-23", "o": 4127.1, "h": 4135.2, "l": 4118.5, "c": 4129.9, "v": 252}, {"d": "2026-06-24", "o": 4104.4, "h": 4104.7, "l": 3963.3, "c": 3990.3, "v": 353}, {"d": "2026-06-25", "o": 3988.4, "h": 4030.5, "l": 3986.7, "c": 4030.5, "v": 2724}, {"d": "2026-06-26", "o": 4078.7, "h": 4078.7, "l": 4078.7, "c": 4078.7, "v": 1431}, {"d": "2026-06-29", "o": 4057.5, "h": 4070.0, "l": 4003.2, "c": 4022.3, "v": 785}, {"d": "2026-06-30", "o": 4002.6, "h": 4049.7, "l": 3962.5, "c": 4022.9, "v": 1108}, {"d": "2026-07-01", "o": 4013.1, "h": 4100.0, "l": 3963.0, "c": 4068.3, "v": 770}, {"d": "2026-07-02", "o": 4067.5, "h": 4140.1, "l": 4062.0, "c": 4112.7, "v": 228}, {"d": "2026-07-06", "o": 4175.4, "h": 4199.7, "l": 4134.2, "c": 4155.1, "v": 1024}, {"d": "2026-07-07", "o": 4126.5, "h": 4167.2, "l": 4107.2, "c": 4145.3, "v": 53}, {"d": "2026-07-08", "o": 4116.3, "h": 4120.3, "l": 4053.0, "c": 4070.9, "v": 292}, {"d": "2026-07-09", "o": 4066.4, "h": 4130.6, "l": 4064.2, "c": 4130.6, "v": 13}, {"d": "2026-07-10", "o": 4122.3, "h": 4125.8, "l": 4090.6, "c": 4104.1, "v": 389}, {"d": "2026-07-13", "o": 4081.0, "h": 4081.0, "l": 3985.9, "c": 3997.0, "v": 679}, {"d": "2026-07-14", "o": 3995.7, "h": 4091.2, "l": 3986.5, "c": 4061.1, "v": 1281}, {"d": "2026-07-15", "o": 4049.1, "h": 4070.1, "l": 4019.4, "c": 4044.0, "v": 374}, {"d": "2026-07-16", "o": 4030.5, "h": 4030.5, "l": 3972.6, "c": 3985.6, "v": 812}, {"d": "2026-07-17", "o": 3975.5, "h": 4017.2, "l": 3964.2, "c": 4012.7, "v": 141}, {"d": "2026-07-20", "o": 4003.4, "h": 4018.9, "l": 4002.7, "c": 4010.3, "v": 231}, {"d": "2026-07-21", "o": 4002.1, "h": 4071.1, "l": 3999.7, "c": 4071.1, "v": 87}, {"d": "2026-07-22", "o": 4096.2, "h": 4152.1, "l": 4096.2, "c": 4146.9, "v": 133}, {"d": "2026-07-23", "o": 4129.9, "h": 4130.9, "l": 4046.6, "c": 4046.6, "v": 59}, {"d": "2026-07-24", "o": 4067.6, "h": 4068.0, "l": 4067.6, "c": 4067.6, "v": 2}, {"d": "2026-07-27", "o": 4090.1, "h": 4107.9, "l": 4072.7, "c": 4074.5, "v": 36}, {"d": "2026-07-28", "o": 4025.7, "h": 4036.3, "l": 4025.7, "c": 4036.3, "v": 248}, {"d": "2026-07-29", "o": 4018.1, "h": 4034.7, "l": 4017.9, "c": 4034.7, "v": 89664}, {"d": "2026-07-30", "o": 4060.7, "h": 4118.5, "l": 4028.5, "c": 4100.1, "v": 16985}, {"d": "2026-07-31", "o": 4102.4, "h": 4102.4, "l": 4022.4, "c": 4049.1, "v": 1166}, {"d": "2026-08-03", "o": 4083.4, "h": 4083.5, "l": 4026.5, "c": 4033.7, "v": 1166}, {"d": "2026-08-04", "o": 4109.6, "h": 4148.9, "l": 4098.2, "c": 4142.8, "v": 69634}];
+const sma20Data = [{"d": "2026-02-11", "v": 4909.32}, {"d": "2026-02-12", "v": 4924.19}, {"d": "2026-02-13", "v": 4944.48}, {"d": "2026-02-17", "v": 4959.2}, {"d": "2026-02-18", "v": 4970.54}, {"d": "2026-02-19", "v": 4977.75}, {"d": "2026-02-20", "v": 4985.28}, {"d": "2026-02-23", "v": 4996.7}, {"d": "2026-02-24", "v": 5000.5}, {"d": "2026-02-25", "v": 5006.83}, {"d": "2026-02-26", "v": 5000.57}, {"d": "2026-02-27", "v": 4996.18}, {"d": "2026-03-02", "v": 5025.2}, {"d": "2026-03-03", "v": 5049.45}, {"d": "2026-03-04", "v": 5060.27}, {"d": "2026-03-05", "v": 5067.52}, {"d": "2026-03-06", "v": 5081.75}, {"d": "2026-03-09", "v": 5088.77}, {"d": "2026-03-10", "v": 5097.71}, {"d": "2026-03-11", "v": 5105.89}, {"d": "2026-03-12", "v": 5108.1}, {"d": "2026-03-13", "v": 5114.54}, {"d": "2026-03-16", "v": 5113.14}, {"d": "2026-03-17", "v": 5119.04}, {"d": "2026-03-18", "v": 5114.21}, {"d": "2026-03-19", "v": 5095.45}, {"d": "2026-03-20", "v": 5071.01}, {"d": "2026-03-23", "v": 5030.98}, {"d": "2026-03-24", "v": 4993.15}, {"d": "2026-03-25", "v": 4960.32}, {"d": "2026-03-26", "v": 4920.27}, {"d": "2026-03-27", "v": 4883.35}, {"d": "2026-03-30", "v": 4844.93}, {"d": "2026-03-31", "v": 4821.94}, {"d": "2026-04-01", "v": 4805.09}, {"d": "2026-04-02", "v": 4784.4}, {"d": "2026-04-06", "v": 4759.93}, {"d": "2026-04-07", "v": 4738.21}, {"d": "2026-04-08", "v": 4714.2}, {"d": "2026-04-09", "v": 4695.44}, {"d": "2026-04-10", "v": 4677.75}, {"d": "2026-04-13", "v": 4662.24}, {"d": "2026-04-14", "v": 4653.79}, {"d": "2026-04-15", "v": 4643.74}, {"d": "2026-04-16", "v": 4638.52}, {"d": "2026-04-17", "v": 4651.36}, {"d": "2026-04-20", "v": 4663.17}, {"d": "2026-04-21", "v": 4677.89}, {"d": "2026-04-22", "v": 4694.55}, {"d": "2026-04-23", "v": 4702.32}, {"d": "2026-04-24", "v": 4719.66}, {"d": "2026-04-27", "v": 4728.82}, {"d": "2026-04-28", "v": 4732.1}, {"d": "2026-04-29", "v": 4726.98}, {"d": "2026-04-30", "v": 4718.56}, {"d": "2026-05-01", "v": 4717.48}, {"d": "2026-05-04", "v": 4710.61}, {"d": "2026-05-05", "v": 4705.54}, {"d": "2026-05-06", "v": 4702.16}, {"d": "2026-05-07", "v": 4697.54}, {"d": "2026-05-08", "v": 4695.47}, {"d": "2026-05-11", "v": 4694.28}, {"d": "2026-05-12", "v": 4686.91}, {"d": "2026-05-13", "v": 4681.8}, {"d": "2026-05-14", "v": 4676.44}, {"d": "2026-05-15", "v": 4661.34}, {"d": "2026-05-18", "v": 4648.64}, {"d": "2026-05-19", "v": 4639.03}, {"d": "2026-05-20", "v": 4628.97}, {"d": "2026-05-21", "v": 4620.71}, {"d": "2026-05-22", "v": 4610.64}, {"d": "2026-05-26", "v": 4601.89}, {"d": "2026-05-27", "v": 4594.69}, {"d": "2026-05-28", "v": 4592.4}, {"d": "2026-05-29", "v": 4589.69}, {"d": "2026-06-01", "v": 4581.95}, {"d": "2026-06-02", "v": 4580.43}, {"d": "2026-06-03", "v": 4574.48}, {"d": "2026-06-04", "v": 4564.17}, {"d": "2026-06-05", "v": 4546.04}, {"d": "2026-06-08", "v": 4526.81}, {"d": "2026-06-09", "v": 4503.88}, {"d": "2026-06-10", "v": 4475.41}, {"d": "2026-06-11", "v": 4445.04}, {"d": "2026-06-12", "v": 4421.88}, {"d": "2026-06-15", "v": 4410.49}, {"d": "2026-06-16", "v": 4399.41}, {"d": "2026-06-17", "v": 4392.04}, {"d": "2026-06-18", "v": 4376.68}, {"d": "2026-06-22", "v": 4358.79}, {"d": "2026-06-23", "v": 4339.23}, {"d": "2026-06-24", "v": 4313.73}, {"d": "2026-06-25", "v": 4292.88}, {"d": "2026-06-26", "v": 4271.85}, {"d": "2026-06-29", "v": 4244.94}, {"d": "2026-06-30", "v": 4222.33}, {"d": "2026-07-01", "v": 4201.28}, {"d": "2026-07-02", "v": 4185.08}, {"d": "2026-07-06", "v": 4169.05}, {"d": "2026-07-07", "v": 4159.46}, {"d": "2026-07-08", "v": 4146.21}, {"d": "2026-07-09", "v": 4139.74}, {"d": "2026-07-10", "v": 4139.53}, {"d": "2026-07-13", "v": 4134.87}, {"d": "2026-07-14", "v": 4127.18}, {"d": "2026-07-15", "v": 4112.98}, {"d": "2026-07-16", "v": 4095.71}, {"d": "2026-07-17", "v": 4078.4}, {"d": "2026-07-20", "v": 4067.71}, {"d": "2026-07-21", "v": 4062.17}, {"d": "2026-07-22", "v": 4063.02}, {"d": "2026-07-23", "v": 4065.84}, {"d": "2026-07-24", "v": 4067.69}, {"d": "2026-07-27", "v": 4067.48}, {"d": "2026-07-28", "v": 4068.18}, {"d": "2026-07-29", "v": 4068.77}, {"d": "2026-07-30", "v": 4070.36}, {"d": "2026-07-31", "v": 4067.18}, {"d": "2026-08-03", "v": 4061.11}, {"d": "2026-08-04", "v": 4060.99}];
+const sma50Data = [{"d": "2026-02-11", "v": 4576.92}, {"d": "2026-02-12", "v": 4590.61}, {"d": "2026-02-13", "v": 4607.32}, {"d": "2026-02-17", "v": 4620.99}, {"d": "2026-02-18", "v": 4636.48}, {"d": "2026-02-19", "v": 4651.74}, {"d": "2026-02-20", "v": 4669.18}, {"d": "2026-02-23", "v": 4689.14}, {"d": "2026-02-24", "v": 4708.33}, {"d": "2026-02-25", "v": 4726.75}, {"d": "2026-02-26", "v": 4744.28}, {"d": "2026-02-27", "v": 4762.75}, {"d": "2026-03-02", "v": 4782.55}, {"d": "2026-03-03", "v": 4797.75}, {"d": "2026-03-04", "v": 4813.36}, {"d": "2026-03-05", "v": 4827.44}, {"d": "2026-03-06", "v": 4841.47}, {"d": "2026-03-09", "v": 4853.65}, {"d": "2026-03-10", "v": 4868.63}, {"d": "2026-03-11", "v": 4881.39}, {"d": "2026-03-12", "v": 4897.21}, {"d": "2026-03-13", "v": 4910.86}, {"d": "2026-03-16", "v": 4924.22}, {"d": "2026-03-17", "v": 4937.96}, {"d": "2026-03-18", "v": 4947.02}, {"d": "2026-03-19", "v": 4949.39}, {"d": "2026-03-20", "v": 4951.81}, {"d": "2026-03-23", "v": 4950.9}, {"d": "2026-03-24", "v": 4949.08}, {"d": "2026-03-25", "v": 4947.99}, {"d": "2026-03-26", "v": 4943.71}, {"d": "2026-03-27", "v": 4941.03}, {"d": "2026-03-30", "v": 4939.22}, {"d": "2026-03-31", "v": 4940.4}, {"d": "2026-04-01", "v": 4940.88}, {"d": "2026-04-02", "v": 4937.27}, {"d": "2026-04-06", "v": 4932.23}, {"d": "2026-04-07", "v": 4925.85}, {"d": "2026-04-08", "v": 4919.24}, {"d": "2026-04-09", "v": 4913.49}, {"d": "2026-04-10", "v": 4902.7}, {"d": "2026-04-13", "v": 4891.18}, {"d": "2026-04-14", "v": 4893.4}, {"d": "2026-04-15", "v": 4896.95}, {"d": "2026-04-16", "v": 4894.58}, {"d": "2026-04-17", "v": 4893.33}, {"d": "2026-04-20", "v": 4892.23}, {"d": "2026-04-21", "v": 4887.17}, {"d": "2026-04-22", "v": 4880.81}, {"d": "2026-04-23", "v": 4874.83}, {"d": "2026-04-24", "v": 4867.85}, {"d": "2026-04-27", "v": 4862.88}, {"d": "2026-04-28", "v": 4854.27}, {"d": "2026-04-29", "v": 4847.52}, {"d": "2026-04-30", "v": 4840.08}, {"d": "2026-05-01", "v": 4833.16}, {"d": "2026-05-04", "v": 4822.36}, {"d": "2026-05-05", "v": 4809.39}, {"d": "2026-05-06", "v": 4799.91}, {"d": "2026-05-07", "v": 4789.78}, {"d": "2026-05-08", "v": 4780.65}, {"d": "2026-05-11", "v": 4770.42}, {"d": "2026-05-12", "v": 4758.08}, {"d": "2026-05-13", "v": 4749.89}, {"d": "2026-05-14", "v": 4741.05}, {"d": "2026-05-15", "v": 4730.86}, {"d": "2026-05-18", "v": 4718.98}, {"d": "2026-05-19", "v": 4707.28}, {"d": "2026-05-20", "v": 4693.31}, {"d": "2026-05-21", "v": 4680.76}, {"d": "2026-05-22", "v": 4668.86}, {"d": "2026-05-26", "v": 4657.82}, {"d": "2026-05-27", "v": 4646.89}, {"d": "2026-05-28", "v": 4636.86}, {"d": "2026-05-29", "v": 4630.27}, {"d": "2026-06-01", "v": 4627.76}, {"d": "2026-06-02", "v": 4626.13}, {"d": "2026-06-03", "v": 4626.79}, {"d": "2026-06-04", "v": 4628.32}, {"d": "2026-06-05", "v": 4624.06}, {"d": "2026-06-08", "v": 4623.27}, {"d": "2026-06-09", "v": 4618.63}, {"d": "2026-06-10", "v": 4610.27}, {"d": "2026-06-11", "v": 4599.13}, {"d": "2026-06-12", "v": 4587.76}, {"d": "2026-06-15", "v": 4581.29}, {"d": "2026-06-16", "v": 4574.78}, {"d": "2026-06-17", "v": 4568.81}, {"d": "2026-06-18", "v": 4558.3}, {"d": "2026-06-22", "v": 4546.1}, {"d": "2026-06-23", "v": 4533.46}, {"d": "2026-06-24", "v": 4518.42}, {"d": "2026-06-25", "v": 4502.53}, {"d": "2026-06-26", "v": 4488.1}, {"d": "2026-06-29", "v": 4472.84}, {"d": "2026-06-30", "v": 4456.14}, {"d": "2026-07-01", "v": 4441.38}, {"d": "2026-07-02", "v": 4429.66}, {"d": "2026-07-06", "v": 4418.12}, {"d": "2026-07-07", "v": 4406.92}, {"d": "2026-07-08", "v": 4393.89}, {"d": "2026-07-09", "v": 4383.0}, {"d": "2026-07-10", "v": 4373.25}, {"d": "2026-07-13", "v": 4362.28}, {"d": "2026-07-14", "v": 4351.21}, {"d": "2026-07-15", "v": 4339.49}, {"d": "2026-07-16", "v": 4328.82}, {"d": "2026-07-17", "v": 4317.95}, {"d": "2026-07-20", "v": 4304.52}, {"d": "2026-07-21", "v": 4291.95}, {"d": "2026-07-22", "v": 4280.48}, {"d": "2026-07-23", "v": 4267.04}, {"d": "2026-07-24", "v": 4254.84}, {"d": "2026-07-27", "v": 4242.37}, {"d": "2026-07-28", "v": 4229.54}, {"d": "2026-07-29", "v": 4219.11}, {"d": "2026-07-30", "v": 4210.07}, {"d": "2026-07-31", "v": 4200.92}, {"d": "2026-08-03", "v": 4190.97}, {"d": "2026-08-04", "v": 4183.03}];
+const vwapData = [{"d": "2026-02-11", "v": 3413.32}, {"d": "2026-02-12", "v": 3413.8}, {"d": "2026-02-13", "v": 3414.04}, {"d": "2026-02-17", "v": 3414.56}, {"d": "2026-02-18", "v": 3415.09}, {"d": "2026-02-19", "v": 3415.13}, {"d": "2026-02-20", "v": 3415.27}, {"d": "2026-02-23", "v": 3416.14}, {"d": "2026-02-24", "v": 3416.24}, {"d": "2026-02-25", "v": 3418.25}, {"d": "2026-02-26", "v": 3419.94}, {"d": "2026-02-27", "v": 3420.35}, {"d": "2026-03-02", "v": 3420.44}, {"d": "2026-03-03", "v": 3422.38}, {"d": "2026-03-04", "v": 3423.12}, {"d": "2026-03-05", "v": 3424.93}, {"d": "2026-03-06", "v": 3425.09}, {"d": "2026-03-09", "v": 3425.77}, {"d": "2026-03-10", "v": 3430.6}, {"d": "2026-03-11", "v": 3431.3}, {"d": "2026-03-12", "v": 3431.73}, {"d": "2026-03-13", "v": 3432.23}, {"d": "2026-03-16", "v": 3432.36}, {"d": "2026-03-17", "v": 3432.59}, {"d": "2026-03-18", "v": 3433.93}, {"d": "2026-03-19", "v": 3434.42}, {"d": "2026-03-20", "v": 3434.59}, {"d": "2026-03-23", "v": 3434.9}, {"d": "2026-03-24", "v": 3435.13}, {"d": "2026-03-25", "v": 3435.4}, {"d": "2026-03-26", "v": 3436.05}, {"d": "2026-03-27", "v": 3483.29}, {"d": "2026-03-30", "v": 3489.91}, {"d": "2026-03-31", "v": 3492.76}, {"d": "2026-04-01", "v": 3493.99}, {"d": "2026-04-02", "v": 3493.99}, {"d": "2026-04-06", "v": 3494.09}, {"d": "2026-04-07", "v": 3494.31}, {"d": "2026-04-08", "v": 3494.62}, {"d": "2026-04-09", "v": 3495.59}, {"d": "2026-04-10", "v": 3496.2}, {"d": "2026-04-13", "v": 3496.23}, {"d": "2026-04-14", "v": 3496.45}, {"d": "2026-04-15", "v": 3496.6}, {"d": "2026-04-16", "v": 3497.22}, {"d": "2026-04-17", "v": 3498.73}, {"d": "2026-04-20", "v": 3499.28}, {"d": "2026-04-21", "v": 3500.13}, {"d": "2026-04-22", "v": 3500.69}, {"d": "2026-04-23", "v": 3500.9}, {"d": "2026-04-24", "v": 3500.94}, {"d": "2026-04-27", "v": 3501.31}, {"d": "2026-04-28", "v": 3503.08}, {"d": "2026-04-29", "v": 3503.39}, {"d": "2026-04-30", "v": 3503.44}, {"d": "2026-05-01", "v": 3503.51}, {"d": "2026-05-04", "v": 3503.53}, {"d": "2026-05-05", "v": 3503.79}, {"d": "2026-05-06", "v": 3503.94}, {"d": "2026-05-07", "v": 3504.12}, {"d": "2026-05-08", "v": 3504.21}, {"d": "2026-05-11", "v": 3504.23}, {"d": "2026-05-12", "v": 3504.3}, {"d": "2026-05-13", "v": 3504.46}, {"d": "2026-05-14", "v": 3504.47}, {"d": "2026-05-15", "v": 3504.85}, {"d": "2026-05-18", "v": 3504.87}, {"d": "2026-05-19", "v": 3505.39}, {"d": "2026-05-20", "v": 3505.97}, {"d": "2026-05-21", "v": 3506.23}, {"d": "2026-05-22", "v": 3506.26}, {"d": "2026-05-26", "v": 3507.01}, {"d": "2026-05-27", "v": 3549.77}, {"d": "2026-05-28", "v": 3558.09}, {"d": "2026-05-29", "v": 3559.12}, {"d": "2026-06-01", "v": 3559.55}, {"d": "2026-06-02", "v": 3559.79}, {"d": "2026-06-03", "v": 3561.22}, {"d": "2026-06-04", "v": 3561.47}, {"d": "2026-06-05", "v": 3563.3}, {"d": "2026-06-08", "v": 3563.45}, {"d": "2026-06-09", "v": 3563.96}, {"d": "2026-06-10", "v": 3564.13}, {"d": "2026-06-11", "v": 3564.72}, {"d": "2026-06-12", "v": 3565.13}, {"d": "2026-06-15", "v": 3565.82}, {"d": "2026-06-16", "v": 3565.89}, {"d": "2026-06-17", "v": 3566.73}, {"d": "2026-06-18", "v": 3567.01}, {"d": "2026-06-22", "v": 3567.41}, {"d": "2026-06-23", "v": 3567.49}, {"d": "2026-06-24", "v": 3567.58}, {"d": "2026-06-25", "v": 3568.25}, {"d": "2026-06-26", "v": 3568.65}, {"d": "2026-06-29", "v": 3568.85}, {"d": "2026-06-30", "v": 3569.12}, {"d": "2026-07-01", "v": 3569.32}, {"d": "2026-07-02", "v": 3569.39}, {"d": "2026-07-06", "v": 3569.72}, {"d": "2026-07-07", "v": 3569.74}, {"d": "2026-07-08", "v": 3569.82}, {"d": "2026-07-09", "v": 3569.82}, {"d": "2026-07-10", "v": 3569.94}, {"d": "2026-07-13", "v": 3570.1}, {"d": "2026-07-14", "v": 3570.44}, {"d": "2026-07-15", "v": 3570.54}, {"d": "2026-07-16", "v": 3570.72}, {"d": "2026-07-17", "v": 3570.76}, {"d": "2026-07-20", "v": 3570.81}, {"d": "2026-07-21", "v": 3570.84}, {"d": "2026-07-22", "v": 3570.88}, {"d": "2026-07-23", "v": 3570.89}, {"d": "2026-07-24", "v": 3570.89}, {"d": "2026-07-27", "v": 3570.9}, {"d": "2026-07-28", "v": 3570.97}, {"d": "2026-07-29", "v": 3592.37}, {"d": "2026-07-30", "v": 3596.66}, {"d": "2026-07-31", "v": 3596.94}, {"d": "2026-08-03", "v": 3597.21}, {"d": "2026-08-04", "v": 3615.69}];
+const ichiData = [{"d": "2026-02-11", "t": 4920.25, "k": 4993.1, "sa": 4381.27, "sb": 4235.0}, {"d": "2026-02-12", "t": 4755.65, "k": 4993.1, "sa": 4384.4, "sb": 4235.0}, {"d": "2026-02-13", "t": 4883.15, "k": 4993.1, "sa": 4391.15, "sb": 4235.0}, {"d": "2026-02-17", "t": 4883.15, "k": 4993.1, "sa": 4391.15, "sb": 4235.0}, {"d": "2026-02-18", "t": 4883.15, "k": 4993.1, "sa": 4376.65, "sb": 4235.0}, {"d": "2026-02-19", "t": 4883.15, "k": 4993.1, "sa": 4425.0, "sb": 4266.85}, {"d": "2026-02-20", "t": 4979.55, "k": 4993.1, "sa": 4425.12, "sb": 4266.85}, {"d": "2026-02-23", "t": 5029.7, "k": 4993.1, "sa": 4439.97, "sb": 4274.35}, {"d": "2026-02-24", "t": 5029.7, "k": 4993.1, "sa": 4458.12, "sb": 4281.2}, {"d": "2026-02-25", "t": 5029.7, "k": 4993.1, "sa": 4467.9, "sb": 4281.2}, {"d": "2026-02-26", "t": 5029.7, "k": 4993.1, "sa": 4540.07, "sb": 4345.7}, {"d": "2026-02-27", "t": 5063.9, "k": 4993.1, "sa": 4605.65, "sb": 4401.1}, {"d": "2026-03-02", "t": 5137.25, "k": 4993.1, "sa": 4640.27, "sb": 4444.35}, {"d": "2026-03-03", "t": 5190.45, "k": 4993.1, "sa": 4700.18, "sb": 4478.5}, {"d": "2026-03-04", "t": 5214.0, "k": 4993.1, "sa": 4763.7, "sb": 4557.5}, {"d": "2026-03-05", "t": 5214.0, "k": 4993.1, "sa": 4766.15, "sb": 4557.5}, {"d": "2026-03-06", "t": 5214.0, "k": 4993.1, "sa": 4869.15, "sb": 4660.5}, {"d": "2026-03-09", "t": 5214.0, "k": 4920.25, "sa": 5011.45, "sb": 4802.8}, {"d": "2026-03-10", "t": 5214.0, "k": 4902.5, "sa": 5029.8, "sb": 4802.8}, {"d": "2026-03-11", "t": 5214.0, "k": 5030.0, "sa": 4964.35, "sb": 4802.8}, {"d": "2026-03-12", "t": 5214.0, "k": 5030.0, "sa": 4964.35, "sb": 4809.0}, {"d": "2026-03-13", "t": 5156.65, "k": 5030.0, "sa": 4964.35, "sb": 4809.0}, {"d": "2026-03-16", "t": 5111.85, "k": 5030.0, "sa": 4964.35, "sb": 4809.0}, {"d": "2026-03-17", "t": 5111.85, "k": 5126.4, "sa": 4964.35, "sb": 4809.0}, {"d": "2026-03-18", "t": 5025.7, "k": 5113.35, "sa": 4971.7, "sb": 4823.35}, {"d": "2026-03-19", "t": 4891.85, "k": 4979.5, "sa": 4989.3, "sb": 4856.85}, {"d": "2026-03-20", "t": 4891.85, "k": 4979.5, "sa": 4956.68, "sb": 4856.85}, {"d": "2026-03-23", "t": 4646.05, "k": 4752.9, "sa": 4874.38, "sb": 4863.1}, {"d": "2026-03-24", "t": 4619.0, "k": 4752.9, "sa": 4938.12, "sb": 4876.6}, {"d": "2026-03-25", "t": 4608.9, "k": 4752.9, "sa": 4938.12, "sb": 4876.6}, {"d": "2026-03-26", "t": 4559.2, "k": 4752.9, "sa": 4938.12, "sb": 4880.6}, {"d": "2026-03-27", "t": 4559.2, "k": 4752.9, "sa": 4938.12, "sb": 4880.6}, {"d": "2026-03-30", "t": 4525.2, "k": 4752.9, "sa": 4986.32, "sb": 4880.85}, {"d": "2026-03-31", "t": 4465.55, "k": 4752.9, "sa": 5011.4, "sb": 4880.85}, {"d": "2026-04-01", "t": 4444.95, "k": 4752.9, "sa": 5011.4, "sb": 4881.95}, {"d": "2026-04-02", "t": 4444.95, "k": 4752.9, "sa": 5011.4, "sb": 4884.9}, {"d": "2026-04-06", "t": 4557.15, "k": 4752.9, "sa": 5011.4, "sb": 4900.25}, {"d": "2026-04-07", "t": 4582.3, "k": 4752.9, "sa": 5028.5, "sb": 4923.1}, {"d": "2026-04-08", "t": 4613.25, "k": 4702.3, "sa": 5065.18, "sb": 4928.35}, {"d": "2026-04-09", "t": 4632.2, "k": 4665.25, "sa": 5091.78, "sb": 4928.35}, {"d": "2026-04-10", "t": 4632.2, "k": 4665.25, "sa": 5103.55, "sb": 4935.6}, {"d": "2026-04-13", "t": 4679.8, "k": 4665.25, "sa": 5103.55, "sb": 4935.6}, {"d": "2026-04-14", "t": 4704.95, "k": 4665.25, "sa": 5103.55, "sb": 4935.6}, {"d": "2026-04-15", "t": 4704.95, "k": 4665.25, "sa": 5067.12, "sb": 4935.6}, {"d": "2026-04-16", "t": 4728.0, "k": 4646.05, "sa": 5058.25, "sb": 4935.6}, {"d": "2026-04-17", "t": 4743.85, "k": 4619.0, "sa": 5122.0, "sb": 4935.6}, {"d": "2026-04-20", "t": 4791.85, "k": 4608.9, "sa": 5122.0, "sb": 4935.6}, {"d": "2026-04-21", "t": 4778.05, "k": 4559.2, "sa": 5093.32, "sb": 4935.6}, {"d": "2026-04-22", "t": 4778.05, "k": 4559.2, "sa": 5070.93, "sb": 4935.6}, {"d": "2026-04-23", "t": 4778.05, "k": 4525.2, "sa": 5119.12, "sb": 4935.6}, {"d": "2026-04-24", "t": 4768.6, "k": 4490.25, "sa": 5069.53, "sb": 4950.3}, {"d": "2026-04-27", "t": 4768.6, "k": 4490.25, "sa": 4935.68, "sb": 4985.5}, {"d": "2026-04-28", "t": 4735.6, "k": 4490.25, "sa": 4935.68, "sb": 4993.1}, {"d": "2026-04-29", "t": 4697.7, "k": 4602.45, "sa": 4699.47, "sb": 4843.5}, {"d": "2026-04-30", "t": 4663.35, "k": 4627.6, "sa": 4685.95, "sb": 4843.5}, {"d": "2026-05-01", "t": 4634.95, "k": 4627.6, "sa": 4680.9, "sb": 4843.5}, {"d": "2026-05-04", "t": 4633.45, "k": 4646.55, "sa": 4656.05, "sb": 4843.5}, {"d": "2026-05-05", "t": 4622.55, "k": 4646.55, "sa": 4656.05, "sb": 4843.5}, {"d": "2026-05-06", "t": 4617.5, "k": 4694.15, "sa": 4639.05, "sb": 4843.5}, {"d": "2026-05-07", "t": 4624.45, "k": 4696.2, "sa": 4609.22, "sb": 4843.5}, {"d": "2026-05-08", "t": 4624.45, "k": 4696.2, "sa": 4598.92, "sb": 4843.5}, {"d": "2026-05-11", "t": 4624.45, "k": 4696.2, "sa": 4598.92, "sb": 4843.5}, {"d": "2026-05-12", "t": 4638.95, "k": 4696.2, "sa": 4655.03, "sb": 4843.5}, {"d": "2026-05-13", "t": 4638.95, "k": 4696.2, "sa": 4667.6, "sb": 4843.5}, {"d": "2026-05-14", "t": 4638.95, "k": 4696.2, "sa": 4657.77, "sb": 4843.5}, {"d": "2026-05-15", "t": 4644.75, "k": 4696.2, "sa": 4648.72, "sb": 4843.5}, {"d": "2026-05-18", "t": 4644.75, "k": 4696.2, "sa": 4648.72, "sb": 4843.5}, {"d": "2026-05-19", "t": 4635.7, "k": 4692.95, "sa": 4672.53, "sb": 4843.5}, {"d": "2026-05-20", "t": 4615.15, "k": 4672.4, "sa": 4685.1, "sb": 4843.5}, {"d": "2026-05-21", "t": 4615.15, "k": 4672.4, "sa": 4685.1, "sb": 4770.65}, {"d": "2026-05-22", "t": 4615.15, "k": 4672.4, "sa": 4687.02, "sb": 4752.9}, {"d": "2026-05-26", "t": 4593.9, "k": 4638.05, "sa": 4681.43, "sb": 4752.9}, {"d": "2026-05-27", "t": 4558.9, "k": 4602.45, "sa": 4700.38, "sb": 4752.9}, {"d": "2026-05-28", "t": 4489.35, "k": 4564.35, "sa": 4668.62, "sb": 4752.9}, {"d": "2026-05-29", "t": 4477.65, "k": 4564.35, "sa": 4668.62, "sb": 4752.9}, {"d": "2026-06-01", "t": 4477.65, "k": 4564.35, "sa": 4651.62, "sb": 4752.9}, {"d": "2026-06-02", "t": 4477.65, "k": 4564.35, "sa": 4629.43, "sb": 4752.9}, {"d": "2026-06-03", "t": 4477.65, "k": 4564.35, "sa": 4629.43, "sb": 4752.9}, {"d": "2026-06-04", "t": 4477.65, "k": 4564.35, "sa": 4612.93, "sb": 4752.9}, {"d": "2026-06-05", "t": 4455.45, "k": 4542.15, "sa": 4650.08, "sb": 4752.9}, {"d": "2026-06-08", "t": 4438.2, "k": 4524.9, "sa": 4645.48, "sb": 4752.9}, {"d": "2026-06-09", "t": 4416.0, "k": 4502.7, "sa": 4631.28, "sb": 4752.9}, {"d": "2026-06-10", "t": 4345.9, "k": 4432.6, "sa": 4640.0, "sb": 4752.9}, {"d": "2026-06-11", "t": 4286.2, "k": 4398.1, "sa": 4634.55, "sb": 4752.9}, {"d": "2026-06-12", "t": 4280.25, "k": 4398.1, "sa": 4655.83, "sb": 4752.9}, {"d": "2026-06-15", "t": 4270.45, "k": 4398.1, "sa": 4660.33, "sb": 4752.9}, {"d": "2026-06-16", "t": 4270.45, "k": 4398.1, "sa": 4660.33, "sb": 4752.9}, {"d": "2026-06-17", "t": 4251.65, "k": 4398.1, "sa": 4660.33, "sb": 4752.9}, {"d": "2026-06-18", "t": 4204.0, "k": 4376.85, "sa": 4667.58, "sb": 4752.9}, {"d": "2026-06-22", "t": 4204.0, "k": 4354.55, "sa": 4667.58, "sb": 4752.9}, {"d": "2026-06-23", "t": 4204.0, "k": 4323.1, "sa": 4667.58, "sb": 4702.3}, {"d": "2026-06-24", "t": 4170.15, "k": 4277.55, "sa": 4670.48, "sb": 4665.25}, {"d": "2026-06-25", "t": 4170.15, "k": 4277.55, "sa": 4670.48, "sb": 4665.25}, {"d": "2026-06-26", "t": 4170.15, "k": 4277.55, "sa": 4664.33, "sb": 4665.25}, {"d": "2026-06-29", "t": 4170.15, "k": 4277.55, "sa": 4643.78, "sb": 4665.25}, {"d": "2026-06-30", "t": 4169.75, "k": 4277.15, "sa": 4643.78, "sb": 4665.25}, {"d": "2026-07-01", "t": 4142.85, "k": 4277.15, "sa": 4643.78, "sb": 4646.05}, {"d": "2026-07-02", "t": 4089.45, "k": 4277.15, "sa": 4615.98, "sb": 4619.0}, {"d": "2026-07-06", "t": 4081.1, "k": 4277.15, "sa": 4580.68, "sb": 4608.9}, {"d": "2026-07-07", "t": 4081.1, "k": 4277.15, "sa": 4526.85, "sb": 4559.2}, {"d": "2026-07-08", "t": 4081.1, "k": 4251.95, "sa": 4521.0, "sb": 4559.2}, {"d": "2026-07-09", "t": 4081.1, "k": 4246.0, "sa": 4521.0, "sb": 4525.2}, {"d": "2026-07-10", "t": 4081.1, "k": 4236.2, "sa": 4521.0, "sb": 4490.25}, {"d": "2026-07-13", "t": 4081.1, "k": 4236.2, "sa": 4521.0, "sb": 4490.25}, {"d": "2026-07-14", "t": 4081.35, "k": 4217.4, "sa": 4521.0, "sb": 4490.25}, {"d": "2026-07-15", "t": 4092.8, "k": 4169.75, "sa": 4498.8, "sb": 4599.4}, {"d": "2026-07-16", "t": 4086.15, "k": 4169.75, "sa": 4481.55, "sb": 4582.15}, {"d": "2026-07-17", "t": 4065.7, "k": 4169.75, "sa": 4459.35, "sb": 4559.95}, {"d": "2026-07-20", "t": 4047.4, "k": 4169.75, "sa": 4389.25, "sb": 4489.85}, {"d": "2026-07-21", "t": 4047.4, "k": 4169.75, "sa": 4342.15, "sb": 4455.35}, {"d": "2026-07-22", "t": 4058.15, "k": 4169.75, "sa": 4339.18, "sb": 4455.35}, {"d": "2026-07-23", "t": 4058.15, "k": 4169.75, "sa": 4334.28, "sb": 4455.35}, {"d": "2026-07-24", "t": 4058.15, "k": 4169.75, "sa": 4334.28, "sb": 4455.35}, {"d": "2026-07-27", "t": 4058.15, "k": 4142.85, "sa": 4324.88, "sb": 4455.35}, {"d": "2026-07-28", "t": 4058.15, "k": 4089.45, "sa": 4290.43, "sb": 4455.35}, {"d": "2026-07-29", "t": 4058.15, "k": 4081.1, "sa": 4279.28, "sb": 4455.35}, {"d": "2026-07-30", "t": 4075.9, "k": 4081.1, "sa": 4263.55, "sb": 4455.35}, {"d": "2026-07-31", "t": 4075.9, "k": 4081.1, "sa": 4223.85, "sb": 4421.5}, {"d": "2026-08-03", "t": 4085.0, "k": 4081.1, "sa": 4223.85, "sb": 4421.5}, {"d": "2026-08-04", "t": 4083.4, "k": 4081.1, "sa": 4223.85, "sb": 4421.5}];
+const events = [{"d": "2026-08-05", "t": "14:15", "e": "ISM Services PMI", "i": "high", "f": "52.5", "p": "52.4"}, {"d": "2026-08-06", "t": "14:30", "e": "Initial Jobless Claims", "i": "medium", "f": "225K", "p": "224K"}, {"d": "2026-08-07", "t": "08:30", "e": "Nonfarm Payrolls", "i": "high", "f": "185K", "p": "177K"}, {"d": "2026-08-07", "t": "08:30", "e": "Unemployment Rate", "i": "high", "f": "4.2%", "p": "4.3%"}, {"d": "2026-08-12", "t": "08:30", "e": "CPI m/m", "i": "high", "f": "0.2%", "p": "0.1%"}, {"d": "2026-08-12", "t": "08:30", "e": "Core CPI m/m", "i": "high", "f": "0.3%", "p": "0.2%"}, {"d": "2026-08-13", "t": "14:15", "e": "PPI m/m", "i": "medium", "f": "0.2%", "p": "0.1%"}, {"d": "2026-08-14", "t": "10:00", "e": "Prelim UoM Consumer Sentiment", "i": "medium", "f": "68.5", "p": "67.8"}, {"d": "2026-08-19", "t": "14:00", "e": "FOMC Meeting Minutes", "i": "high", "f": "-", "p": "-"}, {"d": "2026-08-21", "t": "10:00", "e": "Jackson Hole Symposium", "i": "high", "f": "-", "p": "-"}, {"d": "2026-08-26", "t": "08:30", "e": "Durable Goods Orders m/m", "i": "medium", "f": "0.5%", "p": "-0.1%"}, {"d": "2026-08-28", "t": "08:30", "e": "Core PCE Price Index m/m", "i": "high", "f": "0.2%", "p": "0.1%"}, {"d": "2026-09-01", "t": "10:00", "e": "ISM Manufacturing PMI", "i": "high", "f": "48.5", "p": "48.3"}, {"d": "2026-09-03", "t": "14:15", "e": "ISM Services PMI", "i": "high", "f": "52.3", "p": "52.5"}, {"d": "2026-09-04", "t": "08:30", "e": "Nonfarm Payrolls", "i": "high", "f": "190K", "p": "185K"}, {"d": "2026-09-16", "t": "14:00", "e": "FOMC Interest Rate Decision", "i": "high", "f": "4.50%", "p": "4.75%"}];
+const levels = {r1:4161.74,r2:4180.67,s1:4111.04,s2:4079.27,pp:4129.97,liqA:5586.2,liqB:2554.2};
+let visibleSeries = {sma20:true,sma50:true,vwap:true,liq:true,rs:true,ichi:true};
+
+function toggleTheme() {
+  const html = document.documentElement;
+  html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
 }
 
-// ===== MODE SWITCH =====
-window.setMode = function(mode) {
-  state.mode = mode;
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-  $(mode === 'local' ? 'btnLocal' : 'btnYoutube').classList.add('active');
-  $('localMode').classList.toggle('hidden', mode !== 'local');
-  $('youtubeMode').classList.toggle('hidden', mode !== 'youtube');
-  hide('shortsSection');
-  hide('progressCard');
-  hide('ytPreviewCard');
-};
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+  if(tab === 'chart') setTimeout(drawChart, 10);
+}
 
-// ===== LOCAL FILE =====
-window.handleFile = function(e) {
-  const f = e.target.files[0];
-  if (!f) return;
-  if (!f.type.startsWith('video/')) { toast('❌ To nie jest wideo'); return; }
-  if (f.size > 500 * 1024 * 1024) { toast('❌ Max 500MB w trybie lokalnym'); return; }
+function toggleSeries(name) {
+  visibleSeries[name] = !visibleSeries[name];
+  document.querySelector('.legend-item[data-series="'+name+'"]').classList.toggle('hidden', !visibleSeries[name]);
+  drawChart();
+}
 
-  state.file = f;
-  state.videoUrl = URL.createObjectURL(f);
-  const vid = $('sourceVideo');
-  vid.src = state.videoUrl;
-  vid.onloadedmetadata = () => {
-    state.duration = vid.duration;
-    $('fileName').textContent = f.name;
-    $('fileSize').textContent = (f.size/1024/1024).toFixed(1) + ' MB · ' + fmtTime(vid.duration);
-    $('localMeta').classList.remove('hidden');
-    $('uploadZone').style.display = 'none';
-  };
-};
-
-$('uploadZone').addEventListener('dragover', e => { e.preventDefault(); $('uploadZone').classList.add('dragover'); });
-$('uploadZone').addEventListener('dragleave', () => $('uploadZone').classList.remove('dragover'));
-$('uploadZone').addEventListener('drop', e => {
-  e.preventDefault();
-  $('uploadZone').classList.remove('dragover');
-  if (e.dataTransfer.files[0]) {
-    $('fileInput').files = e.dataTransfer.files;
-    handleFile({ target: $('fileInput') });
-  }
+const tbody = document.getElementById('eventsBody');
+events.forEach(e => {
+  const icls = e.i === 'high' ? 'impact-high' : e.i === 'medium' ? 'impact-medium' : 'impact-low';
+  const itxt = e.i === 'high' ? 'WYSOKI' : e.i === 'medium' ? 'ŚREDNI' : 'NISKI';
+  const row = document.createElement('tr');
+  row.innerHTML = `<td>${e.d}</td><td>${e.t}</td><td>${e.e}</td><td><span class="impact-dot ${icls}"></span>${itxt}</td><td>${e.f}</td><td>${e.p}</td>`;
+  tbody.appendChild(row);
 });
 
-window.resetLocal = function() {
-  state.file = null; state.videoUrl = null; state.segments = []; state.shorts = [];
-  $('fileInput').value = ''; $('sourceVideo').src = '';
-  $('localMeta').classList.add('hidden'); $('uploadZone').style.display = 'block';
-  hide('progressCard'); hide('shortsSection'); $('shortsList').innerHTML = '';
-};
+function drawChart() {
+  const svg = document.getElementById('mainSvg');
+  const wrap = document.getElementById('chartWrap');
+  const W = wrap.clientWidth, H = wrap.clientHeight;
+  const padL = 55, padR = 10, padT = 10, padB = 35;
+  const cw = W - padL - padR, ch = H - padT - padB;
+  const volH = Math.floor(ch * 0.18);
+  const priceH = ch - volH;
 
-// ===== YOUTUBE VIA INVIDIOUS API (NO CORS) =====
-function extractYtId(url) {
-  const m = url.match(/(?:v=|\/embed\/|\/v\/|youtu\.be\/|\/shorts\/)([a-zA-Z0-9_-]{11})/);
-  return m ? m[1] : null;
+  const prices = ohlcData.map(d => [d.l, d.h]).flat();
+  const minP = Math.min(...prices) * 0.998;
+  const maxP = Math.max(...prices) * 1.002;
+  const range = maxP - minP;
+  const volMax = Math.max(...ohlcData.map(d => d.v)) * 1.5;
+
+  const y = p => padT + priceH - ((p - minP) / range) * priceH;
+  const x = i => padL + (i / (ohlcData.length - 1)) * cw;
+  const vy = v => padT + priceH + volH - (v / volMax) * volH;
+
+  let svgHTML = '';
+
+  for(let i = 0; i <= 6; i++) {
+    const py = padT + (priceH / 6) * i;
+    svgHTML += `<line x1="${padL}" y1="${py}" x2="${W-padR}" y2="${py}" stroke="var(--border)" stroke-width="0.5" opacity="0.5"/>`;
+    const pr = maxP - (range / 6) * i;
+    svgHTML += `<text x="${padL-6}" y="${py+3}" text-anchor="end" fill="var(--text-dim)" font-size="10">${pr.toFixed(1)}</text>`;
+  }
+
+  const barW = (cw / ohlcData.length) * 0.7;
+  ohlcData.forEach((d, i) => {
+    const cx = x(i);
+    const vcol = d.c >= d.o ? 'var(--green)' : 'var(--red)';
+    svgHTML += `<rect x="${cx - barW/2}" y="${vy(d.v)}" width="${barW}" height="${volH - (vy(d.v) - padT - priceH)}" fill="${vcol}" opacity="0.25"/>`;
+  });
+
+  let vpath = '';
+  let vstarted = false;
+  const volSMA = ohlcData.map((d,i,arr) => {
+    if(i < 9) return null;
+    let sum = 0; for(let j=i-9;j<=i;j++) sum += arr[j].v;
+    return sum / 10;
+  });
+  volSMA.forEach((v,i) => {
+    if(v === null) return;
+    const px = x(i), py = vy(v);
+    if(!vstarted) { vpath += `M ${px} ${py}`; vstarted = true; }
+    else vpath += ` L ${px} ${py}`;
+  });
+  if(vpath) svgHTML += `<path d="${vpath}" fill="none" stroke="var(--text-dim)" stroke-width="1" opacity="0.5"/>`;
+
+  ohlcData.forEach((d, i) => {
+    const cx = x(i);
+    const oY = y(d.o), cY = y(d.c), hY = y(d.h), lY = y(d.l);
+    const green = d.c >= d.o;
+    const col = green ? 'var(--green)' : 'var(--red)';
+    const bodyH = Math.max(1, Math.abs(cY - oY));
+    const bodyTop = Math.min(oY, cY);
+    svgHTML += `<line x1="${cx}" y1="${hY}" x2="${cx}" y2="${lY}" stroke="${col}" stroke-width="1"/>`;
+    svgHTML += `<rect x="${cx - barW/2}" y="${bodyTop}" width="${barW}" height="${bodyH}" fill="${col}" rx="1"/>`;
+  });
+
+  if(visibleSeries.sma20) {
+    let path = '';
+    let started = false;
+    sma20Data.forEach(d => {
+      const idx = ohlcData.findIndex(o => o.d === d.d);
+      if(idx >= 0) {
+        const px = x(idx), py = y(d.v);
+        if(!started) { path += `M ${px} ${py}`; started = true; }
+        else path += ` L ${px} ${py}`;
+      }
+    });
+    if(path) svgHTML += `<path d="${path}" fill="none" stroke="var(--green)" stroke-width="1.5"/>`;
+  }
+
+  if(visibleSeries.sma50) {
+    let path = '';
+    let started = false;
+    sma50Data.forEach(d => {
+      const idx = ohlcData.findIndex(o => o.d === d.d);
+      if(idx >= 0) {
+        const px = x(idx), py = y(d.v);
+        if(!started) { path += `M ${px} ${py}`; started = true; }
+        else path += ` L ${px} ${py}`;
+      }
+    });
+    if(path) svgHTML += `<path d="${path}" fill="none" stroke="var(--blue)" stroke-width="1.5"/>`;
+  }
+
+  if(visibleSeries.vwap) {
+    let path = '';
+    let started = false;
+    vwapData.forEach(d => {
+      const idx = ohlcData.findIndex(o => o.d === d.d);
+      if(idx >= 0) {
+        const px = x(idx), py = y(d.v);
+        if(!started) { path += `M ${px} ${py}`; started = true; }
+        else path += ` L ${px} ${py}`;
+      }
+    });
+    if(path) svgHTML += `<path d="${path}" fill="none" stroke="var(--purple)" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+  }
+
+  if(visibleSeries.ichi) {
+    let tpath = '';
+    let started = false;
+    ichiData.forEach(d => {
+      const idx = ohlcData.findIndex(o => o.d === d.d);
+      if(idx >= 0) {
+        const px = x(idx), py = y(d.t);
+        if(!started) { tpath += `M ${px} ${py}`; started = true; }
+        else tpath += ` L ${px} ${py}`;
+      }
+    });
+    if(tpath) svgHTML += `<path d="${tpath}" fill="none" stroke="var(--cyan)" stroke-width="1" opacity="0.7"/>`;
+    let kpath = '';
+    started = false;
+    ichiData.forEach(d => {
+      const idx = ohlcData.findIndex(o => o.d === d.d);
+      if(idx >= 0) {
+        const px = x(idx), py = y(d.k);
+        if(!started) { kpath += `M ${px} ${py}`; started = true; }
+        else kpath += ` L ${px} ${py}`;
+      }
+    });
+    if(kpath) svgHTML += `<path d="${kpath}" fill="none" stroke="var(--orange)" stroke-width="1" opacity="0.7"/>`;
+  }
+
+  if(visibleSeries.liq) {
+    const liqs = [levels.liqA, levels.liqB];
+    liqs.forEach(l => {
+      if(l >= minP && l <= maxP) {
+        const py = y(l);
+        svgHTML += `<line x1="${padL}" y1="${py}" x2="${W-padR}" y2="${py}" stroke="var(--yellow)" stroke-width="1" stroke-dasharray="5,4"/>`;
+        svgHTML += `<text x="${W-padR-4}" y="${py-4}" text-anchor="end" fill="var(--yellow)" font-size="9" font-weight="600">LIQ ${l.toFixed(1)}</text>`;
+      }
+    });
+  }
+
+  if(visibleSeries.rs) {
+    const lvls = [
+      {p:levels.r1,c:'var(--red)',l:'R1'}, {p:levels.r2,c:'var(--red)',l:'R2'},
+      {p:levels.s1,c:'var(--green)',l:'S1'}, {p:levels.s2,c:'var(--green)',l:'S2'},
+      {p:levels.pp,c:'var(--blue)',l:'PP'}
+    ];
+    lvls.forEach(lv => {
+      if(lv.p >= minP && lv.p <= maxP) {
+        const py = y(lv.p);
+        svgHTML += `<line x1="${padL}" y1="${py}" x2="${W-padR}" y2="${py}" stroke="${lv.c}" stroke-width="0.8" stroke-dasharray="3,3" opacity="0.8"/>`;
+        svgHTML += `<text x="${padL+4}" y="${py-4}" fill="${lv.c}" font-size="9" font-weight="600">${lv.l} ${lv.p.toFixed(1)}</text>`;
+      }
+    });
+  }
+
+  svgHTML += `<line x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}" stroke="var(--border)" stroke-width="0.5"/>`;
+  for(let i = 0; i < ohlcData.length; i += Math.ceil(ohlcData.length / 8)) {
+    const cx = x(i);
+    svgHTML += `<text x="${cx}" y="${H-10}" text-anchor="middle" fill="var(--text-dim)" font-size="9">${ohlcData[i].d.slice(5)}</text>`;
+  }
+
+  svg.innerHTML = svgHTML;
 }
 
-const INVIDIOUS_INSTANCES = [
-  'https://vid.puffyan.us',
-  'https://iv.nboeck.de',
-  'https://y.com.sb',
-  'https://inv.nadeko.net',
-  'https://iv.datura.network'
-];
-
-window.startYouTube = async function() {
-  const url = $('ytLinkInput').value.trim();
-  const id = extractYtId(url);
-  if (!id) { toast('❌ Nieprawidłowy link YouTube'); return; }
-
-  state.ytVideoId = id;
-  $('ytStartBtn').disabled = true;
-  $('ytStartBtn').textContent = '⏳ Pobieram...';
-  show('progressCard');
-  setProgress('Łączenie z YouTube...', 5);
-  log('🌐 Łączę przez Invidious API...');
-
-  let success = false;
-
-  for (const instance of INVIDIOUS_INSTANCES) {
-    try {
-      log(`🔄 Próbuję: ${instance}...`);
-
-      // 1. Fetch video data including captions
-      const apiUrl = `${instance}/api/v1/videos/${id}?fields=title,author,captions,formatStreams`;
-      const res = await fetch(apiUrl, { method: 'GET', headers: { 'Accept': 'application/json' } });
-
-      if (!res.ok) {
-        log(`⚠️ ${instance} nie odpowiada (${res.status}), próbuję następny...`);
-        continue;
-      }
-
-      const data = await res.json();
-
-      // Store meta
-      state.ytMeta = {
-        title: data.title || 'YouTube Video',
-        author: data.author || '',
-        thumb: `https://img.youtube.com/vi/${id}/mqdefault.jpg`
-      };
-      log(`<span class="ok">✓ Wideo: ${state.ytMeta.title}</span>`);
-
-      // 2. Get captions
-      const captions = data.captions || [];
-      if (!captions.length) {
-        log(`⚠️ ${instance}: brak napisów, próbuję następny serwer...`);
-        continue;
-      }
-
-      // Prefer Polish or English or first available
-      let caption = captions.find(c => c.languageCode === 'pl');
-      if (!caption) caption = captions.find(c => c.languageCode === 'en');
-      if (!caption) caption = captions[0];
-
-      log(`<span class="ok">✓ Napisy: ${caption.label || caption.languageCode}</span>`);
-      setProgress('Pobieranie transkrypcji...', 40);
-
-      // 3. Fetch caption content
-      const captionUrl = caption.url;
-      if (!captionUrl) {
-        log(`⚠️ Brak URL napisów, próbuję następny...`);
-        continue;
-      }
-
-      // Invidious caption URLs are relative sometimes
-      const fullCaptionUrl = captionUrl.startsWith('http') ? captionUrl : instance + captionUrl;
-
-      const capRes = await fetch(fullCaptionUrl);
-      if (!capRes.ok) {
-        log(`⚠️ Nie mogę pobrać napisów, próbuję następny serwer...`);
-        continue;
-      }
-
-      const captionText = await capRes.text();
-
-      // Parse JSON captions from Invidious (they return JS
+drawChart();
+window.addEventListener('resize', drawChart);
+</script>
+</body>
+</html>
