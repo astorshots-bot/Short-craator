@@ -205,7 +205,7 @@ input[type="text"]:focus, input[type="url"]:focus { border-color: var(--accent);
   font-size: 13px;
   color: var(--muted);
   line-height: 1.6;
-  max-height: 120px;
+  max-height: 140px;
   overflow-y: auto;
 }
 .progress-log .ok { color: var(--success); }
@@ -482,7 +482,7 @@ input[type="text"]:focus, input[type="url"]:focus { border-color: var(--accent);
         <input type="url" id="ytLinkInput" placeholder="https://youtube.com/watch?v=... lub youtu.be/...">
         <div class="hint">
           📋 Wklej link do filmu który ma napisy (większość ma auto-napisy).<br>
-          ⚡ Działa z filmami 1 sekundy do 10 godzin. Telefon możesz wyłączyć po kliknięciu — proces trwa 10-30 sekund.
+          ⚡ Działa z filmami 1 sekundy do 10 godzin. Telefon możesz wyłączyć po kliknięciu.
         </div>
       </div>
       <button class="btn btn-yt" id="ytStartBtn" onclick="startYouTube()">⚡ POBIERZ NAPISY + ANALIZA</button>
@@ -502,7 +502,7 @@ input[type="text"]:focus, input[type="url"]:focus { border-color: var(--accent);
   <!-- YT VIDEO PREVIEW -->
   <div id="ytPreviewCard" class="card hidden">
     <div class="video-meta">
-      <img id="ytThumb" src="" class="video-thumb" style="display:none;">
+      <img id="ytThumb" src="" class="video-thumb" style="display:none;" onerror="this.style.display='none'">
       <div class="video-info">
         <h4 id="ytTitle">Tytuł wideo</h4>
         <p id="ytChannel">Kanał</p>
@@ -564,9 +564,7 @@ const hide = id => $(id).classList.remove('active');
 
 // ===== INIT =====
 function init() {
-  if (state.isPro) {
-    $('proBanner').classList.add('hidden');
-  }
+  if (state.isPro) $('proBanner').classList.add('hidden');
   setMode('local');
 }
 
@@ -620,11 +618,19 @@ window.resetLocal = function() {
   hide('progressCard'); hide('shortsSection'); $('shortsList').innerHTML = '';
 };
 
-// ===== YOUTUBE =====
+// ===== YOUTUBE VIA INVIDIOUS API (NO CORS) =====
 function extractYtId(url) {
   const m = url.match(/(?:v=|\/embed\/|\/v\/|youtu\.be\/|\/shorts\/)([a-zA-Z0-9_-]{11})/);
   return m ? m[1] : null;
 }
+
+const INVIDIOUS_INSTANCES = [
+  'https://vid.puffyan.us',
+  'https://iv.nboeck.de',
+  'https://y.com.sb',
+  'https://inv.nadeko.net',
+  'https://iv.datura.network'
+];
 
 window.startYouTube = async function() {
   const url = $('ytLinkInput').value.trim();
@@ -636,611 +642,64 @@ window.startYouTube = async function() {
   $('ytStartBtn').textContent = '⏳ Pobieram...';
   show('progressCard');
   setProgress('Łączenie z YouTube...', 5);
-  log('🌐 Łączę z YouTube...');
+  log('🌐 Łączę przez Invidious API...');
 
-  try {
-    // 1. Get metadata via oEmbed
-    setProgress('Pobieranie metadanych...', 15);
+  let success = false;
+
+  for (const instance of INVIDIOUS_INSTANCES) {
     try {
-      const metaRes = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`);
-      const meta = await metaRes.json();
-      state.ytMeta = { title: meta.title, author: meta.author_name, thumb: meta.thumbnail_url };
-      log(`<span class="ok">✓ Wideo: ${meta.title}</span>`);
-    } catch(e) {
-      state.ytMeta = { title: 'YouTube Video', author: '', thumb: `https://img.youtube.com/vi/${id}/mqdefault.jpg` };
-    }
+      log(`🔄 Próbuję: ${instance}...`);
 
-    // 2. Fetch captions via proxy
-    setProgress('Szukam napisów...', 30);
-    log('🔍 Szukam napisów na YouTube...');
+      // 1. Fetch video data including captions
+      const apiUrl = `${instance}/api/v1/videos/${id}?fields=title,author,captions,formatStreams`;
+      const res = await fetch(apiUrl, { method: 'GET', headers: { 'Accept': 'application/json' } });
 
-    const proxy = 'https://corsproxy.io/?';
-    const pageRes = await fetch(proxy + encodeURIComponent(`https://www.youtube.com/watch?v=${id}`));
-    if (!pageRes.ok) throw new Error('Brak dostępu do YouTube');
-
-    const html = await pageRes.text();
-    const match = html.match(/ytInitialPlayerResponse\s*=\s*({.+?});<\/script>/);
-    if (!match) throw new Error('Nie znaleziono danych wideo');
-
-    let data;
-    try { data = JSON.parse(match[1]); }
-    catch(e) {
-      const m2 = html.match(/ytInitialPlayerResponse\s*=\s*({.+?});/);
-      if (!m2) throw new Error('Błąd parsowania');
-      data = JSON.parse(m2[1]);
-    }
-
-    const tracks = data?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
-    if (!tracks || !tracks.length) {
-      throw new Error('To wideo nie ma napisów. Spróbuj inne wideo lub użyj trybu Lokalnego.');
-    }
-
-    // Prefer Polish, fallback to first
-    let track = tracks.find(t => t.languageCode === 'pl');
-    if (!track) track = tracks.find(t => t.languageCode === 'en');
-    if (!track) track = tracks[0];
-
-    const langName = track.name?.simpleText || track.languageCode;
-    log(`<span class="ok">✓ Napisy: ${langName}</span>`);
-
-    // 3. Fetch transcript XML
-    setProgress('Pobieranie transkrypcji...', 50);
-    log('📥 Pobieram transkrypcję...');
-
-    const xmlRes = await fetch(proxy + encodeURIComponent(track.baseUrl));
-    if (!xmlRes.ok) throw new Error('Nie udało się pobrać napisów');
-
-    const xmlText = await xmlRes.text();
-    state.segments = parseTranscriptXML(xmlText);
-    log(`<span class="ok">✓ ${state.segments.length} segmentów tekstu</span>`);
-
-    // 4. Analyze
-    setProgress('Analiza hooków...', 75);
-    log('🎯 Analiza viral hooków...');
-    const analyzed = state.segments.map((s, i) => analyzeSegment(s, i, state.segments.length));
-    state.shorts = groupIntoShorts(analyzed, true);
-    log(`<span class="ok">✓ Wybrano ${state.shorts.length} shortów</span>`);
-
-    // 5. Show results
-    setProgress('Gotowe!', 100);
-    renderYtPreview();
-    renderShorts(true);
-    show('shortsSection');
-    toast(`✅ Znaleziono ${state.shorts.length} shortów z YouTube!`);
-
-  } catch (err) {
-    console.error(err);
-    log(`<span class="err">❌ Błąd: ${err.message}</span>`);
-    toast('❌ ' + err.message);
-    setProgress('Błąd', 0);
-  } finally {
-    $('ytStartBtn').disabled = false;
-    $('ytStartBtn').textContent = '⚡ POBIERZ NAPISY + ANALIZA';
-  }
-};
-
-function parseTranscriptXML(xml) {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(xml, 'text/xml');
-  const texts = doc.querySelectorAll('text');
-  const segs = [];
-  texts.forEach(node => {
-    const start = parseFloat(node.getAttribute('start') || '0');
-    const dur = parseFloat(node.getAttribute('dur') || '3');
-    let text = node.textContent || '';
-    text = text.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'");
-    if (text.trim()) {
-      segs.push({ time: start, endTime: start + dur, text: text.trim(), words: text.trim().split(/\s+/).filter(w=>w).length, duration: dur });
-    }
-  });
-  return segs;
-}
-
-function renderYtPreview() {
-  show('ytPreviewCard');
-  $('ytTitle').textContent = state.ytMeta?.title || 'YouTube Video';
-  $('ytChannel').textContent = state.ytMeta?.author || '';
-  if (state.ytMeta?.thumb) {
-    $('ytThumb').src = state.ytMeta.thumb;
-    $('ytThumb').style.display = 'block';
-  }
-  $('ytFrame').src = `https://www.youtube.com/embed/${state.ytVideoId}`;
-}
-
-// ===== LOCAL PIPELINE =====
-window.startLocal = async function() {
-  if (!state.file) return;
-
-  $('localStartBtn').disabled = true;
-  $('localStartBtn').textContent = '⏳ Pracuję...';
-  show('progressCard');
-
-  try {
-    setProgress('Ładowanie AI...', 5);
-    log('🧠 Ładowanie Whisper AI...');
-
-    if (!state.transcriber) {
-      state.transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny', {
-        dtype: 'q8',
-        progress_callback: p => {
-          if (p.status === 'progress') {
-            const pct = Math.round(p.loaded / p.total * 25);
-            setProgress('Ładowanie modelu AI...', 5 + pct);
-          }
-        }
-      });
-    }
-    log('<span class="ok">✓ Model AI gotowy</span>');
-
-    setProgress('Ekstrakcja audio...', 35);
-    log('🔊 Ekstrakcja audio...');
-    const audioData = await extractAudio(state.file);
-    log(`<span class="ok">✓ Audio: ${audioData.length} próbek</span>`);
-
-    setProgress('Transkrypcja (to trwa)...', 50);
-    log('📝 Transkrypcja mowy...');
-    const result = await state.transcriber(audioData, {
-      return_timestamps: true,
-      chunk_length_s: 30,
-      stride_length_s: 5,
-      language: 'pl'
-    });
-    log('<span class="ok">✓ Transkrypcja zakończona</span>');
-
-    state.segments = parseWhisperResult(result);
-    log(`<span class="ok">✓ ${state.segments.length} segmentów</span>`);
-
-    setProgress('Analiza hooków...', 80);
-    log('🎯 Analiza hooków...');
-    const analyzed = state.segments.map((s, i) => analyzeSegment(s, i, state.segments.length));
-    state.shorts = groupIntoShorts(analyzed, false);
-    log(`<span class="ok">✓ ${state.shorts.length} shortów</span>`);
-
-    setProgress('Gotowe!', 100);
-    renderShorts(false);
-    show('shortsSection');
-    toast(`✅ ${state.shorts.length} shortów gotowych!`);
-
-  } catch (err) {
-    console.error(err);
-    log(`<span class="err">❌ ${err.message}</span>`);
-    toast('❌ ' + err.message);
-  } finally {
-    $('localStartBtn').disabled = false;
-    $('localStartBtn').textContent = '🚀 START TRANSSKRYPCJA';
-  }
-};
-
-async function extractAudio(file) {
-  const arrayBuffer = await file.arrayBuffer();
-  const audioContext = new AudioContext({ sampleRate: 16000 });
-  const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-  const channelData = audioBuffer.numberOfChannels > 1 
-    ? mixChannels(audioBuffer) 
-    : audioBuffer.getChannelData(0);
-  return audioBuffer.sampleRate !== 16000 
-    ? resample(channelData, audioBuffer.sampleRate, 16000) 
-    : channelData;
-}
-
-function mixChannels(buffer) {
-  const len = buffer.length, out = new Float32Array(len);
-  for (let i = 0; i < len; i++) {
-    let sum = 0;
-    for (let c = 0; c < buffer.numberOfChannels; c++) sum += buffer.getChannelData(c)[i];
-    out[i] = sum / buffer.numberOfChannels;
-  }
-  return out;
-}
-
-function resample(input, inRate, outRate) {
-  const ratio = inRate / outRate;
-  const outLen = Math.floor(input.length / ratio);
-  const out = new Float32Array(outLen);
-  for (let i = 0; i < outLen; i++) {
-    const pos = i * ratio, idx = Math.floor(pos), frac = pos - idx;
-    out[i] = (input[idx] || 0) + ((input[idx+1] || input[idx] || 0) - (input[idx] || 0)) * frac;
-  }
-  return out;
-}
-
-function parseWhisperResult(result) {
-  const chunks = result.chunks || [];
-  const segs = [];
-  for (const chunk of chunks) {
-    const text = chunk.text.trim();
-    if (!text) continue;
-    const ts = chunk.timestamp;
-    if (Array.isArray(ts) && ts.length === 2) {
-      segs.push({ time: ts[0], endTime: ts[1], text, words: text.split(/\s+/).length, duration: ts[1]-ts[0] });
-    }
-  }
-  return segs;
-}
-
-// ===== HOOK AI =====
-const HOOKS = {
-  questions: ['?', 'dlaczego', 'jak ', 'co jeśli', 'czy wiesz', 'zastanawiasz', 'po co', 'kiedy', 'gdzie', 'kim', 'ile', 'czy '],
-  urgency: ['teraz', 'natychmiast', 'dzisiaj', 'ostatni', 'pilne', 'szybko', 'już', 'zaraz', 'limit'],
-  numbers: ['1','2','3','4','5','6','7','8','9','0','milion','tysiąc','procent',' razy','x ','zł','eur','$','€'],
-  controversy: ['błąd','porażka','kłamstwo','oszustwo','nie działa','strata','głupi','źle','tragedia','skandal','prawda','ukrywają','nie chcą','zakazane','wstyd','dramat'],
-  emotions: ['szok','wow','niesamowite','genialny','perfekcyjny','koszmar','wstrząs','emocje','płakać','śmiać','wkurz','kocham','nienawidzę'],
-  power: ['sekret','hak','triks','strategia','metoda','system','szablon','framework','mistrz','pro ','hack','gold','protip'],
-  curiosity: ['nikt','nie powie','nie zgadniesz','ukryte','tajne','za kulisami','prawdziwe','nieznane','mroczne','zakazane']
-};
-
-function analyzeSegment(seg, idx, total) {
-  const text = seg.text.toLowerCase();
-  let score = 0, reasons = [];
-
-  if (seg.words <= 5) { score += 22; reasons.push('hook'); }
-  else if (seg.words <= 10) { score += 14; reasons.push('zwięzłe'); }
-  else if (seg.words <= 15) { score += 6; }
-
-  if (text.includes('?')) { score += 18; reasons.push('pytanie'); }
-  Object.values(HOOKS).flat().forEach(word => {
-    if (text.includes(word)) {
-      const cat = Object.entries(HOOKS).find(([k,v]) => v.includes(word))?.[0];
-      if (cat === 'questions') score += 8;
-      else if (cat === 'numbers') score += 12;
-      else if (cat === 'controversy') score += 16;
-      else if (cat === 'emotions') score += 14;
-      else if (cat === 'urgency') score += 10;
-      else if (cat === 'power') score += 10;
-      else if (cat === 'curiosity') score += 12;
-      reasons.push(cat);
-    }
-  });
-
-  if (seg.text.includes('!')) { score += 8; reasons.push('emfaza'); }
-  if (/[A-ZĄĆĘŁŃÓŚŹŻ]{3,}/.test(seg.text)) { score += 6; }
-
-  const pos = idx / total;
-  if (pos < 0.25) { score += 12; reasons.push('start'); }
-  else if (pos > 0.75) { score += 6; reasons.push('finisz'); }
-
-  return { ...seg, score: Math.min(100, score), reasons: [...new Set(reasons)].slice(0, 3) };
-}
-
-function groupIntoShorts(segments, isYt) {
-  const shorts = [];
-  let current = [];
-  let lastT = null;
-  const maxShorts = state.isPro ? (isYt ? 15 : 10) : (isYt ? 5 : 3);
-  const maxDuration = state.isPro ? 60 : 45;
-
-  for (let i = 0; i < segments.length; i++) {
-    const seg = segments[i];
-    const next = segments[i + 1];
-
-    if (lastT !== null && seg.time - lastT > 5) {
-      if (current.length >= 2) shorts.push(finishShort(current));
-      current = [];
-    }
-
-    current.push(seg);
-    lastT = seg.endTime || seg.time + 3;
-
-    const dur = (current[current.length - 1].endTime || current[current.length - 1].time + 3) - current[0].time;
-    if (dur >= maxDuration || (next && next.time - (seg.endTime || seg.time + 3) > 5)) {
-      if (current.length >= 2) shorts.push(finishShort(current));
-      current = [];
-    }
-  }
-  if (current.length >= 2) shorts.push(finishShort(current));
-
-  return shorts.sort((a, b) => b.score - a.score).slice(0, maxShorts);
-}
-
-function finishShort(group) {
-  const start = group[0].time;
-  const end = (group[group.length - 1].endTime || group[group.length - 1].time + 3) + 1;
-  const dur = end - start;
-  const fullText = group.map(g => g.text).join(' ');
-  const hookText = group.slice(0, Math.min(3, group.length)).map(g => g.text).join(' ');
-  const avgScore = Math.round(group.reduce((a, b) => a + b.score, 0) / group.length);
-  return { start, end, duration: Math.round(dur), hookText, fullText, score: avgScore, segments: group };
-}
-
-// ===== RENDER SHORTS UI =====
-function renderShorts(isYt) {
-  $('shortsCount').textContent = state.shorts.length + ' znalezionych';
-  const list = $('shortsList');
-  list.innerHTML = '';
-
-  state.shorts.forEach((short, idx) => {
-    const isHot = short.score >= 75;
-    const hookDisplay = short.hookText.length > 90 ? short.hookText.substring(0, 90) + '...' : short.hookText;
-
-    let actions = '';
-    if (isYt) {
-      const cutterLink = `https://ytcutter.com/?v=${state.ytVideoId}&s=${Math.floor(short.start)}&e=${Math.ceil(short.end)}`;
-      actions = `
-        <a href="${cutterLink}" target="_blank" class="btn" style="text-decoration:none;">✂️ YT Cutter</a>
-        <button class="btn btn-secondary" onclick="generateSRT(${idx})">📝 SRT</button>
-        <button class="btn btn-secondary" onclick="copyTimestamp(${idx})">⏱ Czas</button>
-        <button class="btn btn-success" onclick="copyScript(${idx})">📋 Skrypt</button>
-      `;
-    } else {
-      actions = `
-        <button class="btn" onclick="renderLocalVideo(${idx})" id="renderBtn-${idx}">🎬 RENDERUJ</button>
-        <button class="btn btn-secondary" onclick="copyTimestamp(${idx})">⏱ Czas</button>
-      `;
-    }
-
-    const div = document.createElement('div');
-    div.className = 'short-card';
-    div.innerHTML = `
-      <div class="short-header">
-        <div class="short-rank">#${idx + 1}</div>
-        <div class="viral-score ${isHot ? 'hot' : ''}">${isHot ? '🔥 VIRAL' : '⚡ HOOK'} ${short.score}/100</div>
-      </div>
-      <div class="time-pill">⏱ ${fmtTime(short.start)} → ${fmtTime(short.end)} (${short.duration}s)</div>
-      <div class="hook-text">"${hookDisplay}"</div>
-
-      ${isYt ? `
-      <div class="preview-box" style="aspect-ratio:16/9;max-width:100%;">
-        <iframe src="https://www.youtube.com/embed/${state.ytVideoId}?start=${Math.floor(short.start)}&end=${Math.ceil(short.end)}" allowfullscreen style="width:100%;height:100%;border:none;"></iframe>
-      </div>
-      ` : `
-      <div class="preview-box" id="preview-${idx}">
-        <div class="preview-overlay" id="overlay-${idx}">Gotowe do renderu</div>
-      </div>
-      `}
-
-      <div class="action-grid">${actions}</div>
-      <div class="srt-box" id="srt-${idx}"></div>
-      ${!isYt ? `
-      <div class="render-progress hidden" id="renderProgress-${idx}" style="margin-top:12px;padding:12px;background:#0f0f0f;border-radius:12px;border:1px solid #222;">
-        <div style="height:6px;background:#222;border-radius:3px;overflow:hidden;margin-bottom:8px;">
-          <div style="height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0%;transition:width 0.3s;" id="renderFill-${idx}"></div>
-        </div>
-        <div style="font-size:12px;color:var(--muted);text-align:center;" id="renderText-${idx}">Renderowanie...</div>
-      </div>
-      ` : ''}
-    `;
-    list.appendChild(div);
-  });
-}
-
-// ===== LOCAL VIDEO RENDER =====
-window.renderLocalVideo = async function(idx) {
-  if (!state.isPro && idx > 0) { showProModal(); return; }
-  const short = state.shorts[idx];
-  const btn = $(`renderBtn-${idx}`);
-  const progress = $(`renderProgress-${idx}`);
-  const fill = $(`renderFill-${idx}`);
-  const text = $(`renderText-${idx}`);
-  const preview = $(`preview-${idx}`);
-
-  btn.disabled = true; btn.textContent = '⏳ Renderuję...';
-  progress.classList.remove('hidden');
-
-  try {
-    const video = document.createElement('video');
-    video.src = state.videoUrl; video.muted = true; video.playsInline = true;
-    await new Promise((res, rej) => { video.onloadeddata = res; video.onerror = rej; video.load(); });
-
-    const W = state.isPro ? 1080 : 720;
-    const H = state.isPro ? 1920 : 1280;
-    const canvas = $('renderCanvas');
-    canvas.width = W; canvas.height = H;
-    const ctx = canvas.getContext('2d');
-
-    const previewCanvas = document.createElement('canvas');
-    previewCanvas.width = W; previewCanvas.height = H;
-    previewCanvas.style.width = '100%'; previewCanvas.style.height = '100%';
-    preview.innerHTML = ''; preview.appendChild(previewCanvas);
-    const pCtx = previewCanvas.getContext('2d');
-
-    const stream = canvas.captureStream(30);
-    let mimeType = 'video/webm;codecs=vp9';
-    if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm;codecs=vp8';
-    if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
-    const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: state.isPro ? 8000000 : 4000000 });
-    const chunks = [];
-    recorder.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
-    const blobPromise = new Promise(resolve => { recorder.onstop = () => resolve(new Blob(chunks, { type: mimeType })); });
-
-    const subSegments = prepareSubtitles(short);
-    recorder.start(100);
-    video.currentTime = short.start;
-    await new Promise(r => video.addEventListener('seeked', r, { once: true }));
-
-    let wakeLock = null;
-    try { wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
-
-    video.play();
-    const drawLoop = () => {
-      const now = video.currentTime;
-      const progress = Math.min(1, (now - short.start) / (short.end - short.start));
-      fill.style.width = Math.round(progress * 100) + '%';
-      text.textContent = 'Renderowanie... ' + Math.round(progress * 100) + '%';
-
-      if (now >= short.end || video.ended || video.paused) {
-        recorder.stop(); video.pause(); if (wakeLock) wakeLock.release(); return;
+      if (!res.ok) {
+        log(`⚠️ ${instance} nie odpowiada (${res.status}), próbuję następny...`);
+        continue;
       }
-      drawFrame(ctx, video, W, H, now, subSegments);
-      pCtx.drawImage(canvas, 0, 0);
-      requestAnimationFrame(drawLoop);
-    };
-    requestAnimationFrame(drawLoop);
 
-    const blob = await blobPromise;
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `ViralCut_Short_${idx+1}_${short.score}pts.webm`; a.click();
+      const data = await res.json();
 
-    fill.style.width = '100%';
-    text.textContent = '✅ Gotowe! Pobieranie...';
-    text.style.color = 'var(--success)';
-    btn.textContent = '✅ POBRANO';
-    btn.classList.add('btn-success');
-    toast('✅ Short #' + (idx+1) + ' gotowy!');
+      // Store meta
+      state.ytMeta = {
+        title: data.title || 'YouTube Video',
+        author: data.author || '',
+        thumb: `https://img.youtube.com/vi/${id}/mqdefault.jpg`
+      };
+      log(`<span class="ok">✓ Wideo: ${state.ytMeta.title}</span>`);
 
-  } catch (err) {
-    text.textContent = '❌ Błąd: ' + err.message;
-    text.style.color = '#ff4444';
-    btn.textContent = '❌ Błąd';
-    toast('❌ Renderowanie nieudane');
-  }
-};
+      // 2. Get captions
+      const captions = data.captions || [];
+      if (!captions.length) {
+        log(`⚠️ ${instance}: brak napisów, próbuję następny serwer...`);
+        continue;
+      }
 
-function prepareSubtitles(short) {
-  const words = short.fullText.split(/\s+/);
-  const totalTime = short.end - short.start;
-  const wordsPerChunk = Math.max(3, Math.floor(words.length / Math.ceil(totalTime / 2.5)));
-  const segments = [];
-  let wordIdx = 0;
-  const segDuration = totalTime / Math.ceil(words.length / wordsPerChunk);
-  for (let t = short.start; t < short.end && wordIdx < words.length; t += segDuration) {
-    const chunk = words.slice(wordIdx, wordIdx + wordsPerChunk).join(' ');
-    segments.push({ start: t, end: t + segDuration, text: chunk });
-    wordIdx += wordsPerChunk;
-  }
-  return segments;
-}
+      // Prefer Polish or English or first available
+      let caption = captions.find(c => c.languageCode === 'pl');
+      if (!caption) caption = captions.find(c => c.languageCode === 'en');
+      if (!caption) caption = captions[0];
 
-function drawFrame(ctx, video, W, H, currentTime, subSegments) {
-  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
-  const vW = video.videoWidth || W, vH = video.videoHeight || H;
-  const scale = Math.max(W / vW, H / vH);
-  const dw = vW * scale, dh = vH * scale, dx = (W - dw) / 2, dy = (H - dh) / 2;
-  ctx.drawImage(video, dx, dy, dw, dh);
-  const sub = subSegments.find(s => currentTime >= s.start && currentTime < s.end);
-  if (sub && sub.text) drawTikTokText(ctx, sub.text, W / 2, H * 0.82, W);
-}
+      log(`<span class="ok">✓ Napisy: ${caption.label || caption.languageCode}</span>`);
+      setProgress('Pobieranie transkrypcji...', 40);
 
-function drawTikTokText(ctx, text, x, y, maxWidth) {
-  ctx.save();
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  const fontSize = Math.floor(maxWidth * 0.065);
-  ctx.font = `900 ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
-  const words = text.split(' ');
-  const lines = [];
-  let currentLine = words[0];
-  for (let i = 1; i < words.length; i++) {
-    const testLine = currentLine + ' ' + words[i];
-    if (ctx.measureText(testLine).width < maxWidth * 0.88) currentLine = testLine;
-    else { lines.push(currentLine); currentLine = words[i]; }
-  }
-  lines.push(currentLine);
-  const lineHeight = fontSize * 1.25;
-  const totalHeight = lines.length * lineHeight;
-  let startY = y - totalHeight / 2 + lineHeight / 2;
-  lines.forEach((line, i) => {
-    const ly = startY + i * lineHeight;
-    ctx.lineWidth = fontSize * 0.08; ctx.strokeStyle = '#000000'; ctx.lineJoin = 'round';
-    ctx.strokeText(line, x, ly);
-    ctx.fillStyle = '#ffffff'; ctx.fillText(line, x, ly);
-    ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 8; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 4;
-    ctx.fillText(line, x, ly); ctx.shadowColor = 'transparent';
-  });
-  ctx.restore();
-}
+      // 3. Fetch caption content
+      const captionUrl = caption.url;
+      if (!captionUrl) {
+        log(`⚠️ Brak URL napisów, próbuję następny...`);
+        continue;
+      }
 
-// ===== SRT / UTILS =====
-window.generateSRT = function(idx) {
-  if (!state.isPro && idx > 0) { showProModal(); return; }
-  const short = state.shorts[idx];
-  let srt = '', counter = 1;
-  const sentences = short.fullText.match(/[^.!?]+[.!?]+/g) || [short.fullText];
-  sentences.forEach((sent, i) => {
-    const start = short.start + (i * 2.8);
-    const end = start + 3.2;
-    srt += `${counter}
-${fmtSRT(start)} --> ${fmtSRT(end)}
-${sent.trim()}
+      // Invidious caption URLs are relative sometimes
+      const fullCaptionUrl = captionUrl.startsWith('http') ? captionUrl : instance + captionUrl;
 
-`;
-    counter++;
-  });
-  const box = $(`srt-${idx}`);
-  box.textContent = srt; box.classList.add('show');
-  navigator.clipboard.writeText(srt).then(() => toast('📋 SRT skopiowane!'));
-};
+      const capRes = await fetch(fullCaptionUrl);
+      if (!capRes.ok) {
+        log(`⚠️ Nie mogę pobrać napisów, próbuję następny serwer...`);
+        continue;
+      }
 
-window.copyTimestamp = function(idx) {
-  const s = state.shorts[idx];
-  const title = state.ytMeta?.title || state.file?.name || 'Wideo';
-  const text = `ViralCut #${idx+1}
-${title}
-Start: ${fmtTime(s.start)}
-End: ${fmtTime(s.end)}
-Hook: "${s.hookText}"`;
-  navigator.clipboard.writeText(text).then(() => toast('📋 Skopiowano!'));
-};
+      const captionText = await capRes.text();
 
-window.copyScript = function(idx) {
-  const s = state.shorts[idx];
-  const title = state.ytMeta?.title || 'Wideo';
-  const cutter = state.ytVideoId ? `https://ytcutter.com/?v=${state.ytVideoId}&s=${Math.floor(s.start)}&e=${Math.ceil(s.end)}` : 'Użyj wideo lokalnego';
-  const script = `🎬 VIRALCUT — Short #${idx+1}
-Wideo: ${title}
-Czas: ${fmtTime(s.start)} - ${fmtTime(s.end)} (${s.duration}s)
-
-🪝 HOOK:
-"${s.hookText}"
-
-✂️ WYCINANIE:
-${cutter}
-
-📝 NAPISY:
-Wygeneruj SRT w apce i importuj do CapCut
-
-🚀 GOTOWE DO TIKTOK!
-`.trim();
-  navigator.clipboard.writeText(script).then(() => toast('📋 Skrypt skopiowany!'));
-};
-
-// ===== PRO =====
-window.showProModal = function() { $('proModal').classList.add('active'); };
-window.closeProModal = function() { $('proModal').classList.remove('active'); };
-window.activatePro = function() {
-  const code = $('proCode').value.trim().toUpperCase();
-  if (code === 'VIRAL2026' || code.length > 8) {
-    state.isPro = true;
-    localStorage.setItem('vc_ultimate_pro', 'true');
-    $('proBanner').classList.add('hidden');
-    closeProModal();
-    toast('🔓 PRO aktywowane!');
-  } else {
-    toast('❌ Nieprawidłowy kod');
-  }
-};
-
-// ===== UTILS =====
-function fmtTime(sec) {
-  const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
-  return m + ':' + String(s).padStart(2, '0');
-}
-function fmtSRT(sec) {
-  const h = Math.floor(sec / 3600);
-  const m = Math.floor((sec % 3600) / 60);
-  const s = Math.floor(sec % 60);
-  const ms = Math.floor((sec % 1) * 1000);
-  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')},${String(ms).padStart(3,'0')}`;
-}
-function setProgress(text, pct) {
-  $('progressTitle').textContent = text;
-  $('progressPercent').textContent = pct + '%';
-  $('progressFill').style.width = pct + '%';
-}
-function log(html) {
-  const el = $('progressLog');
-  el.innerHTML += html + '<br>';
-  el.scrollTop = el.scrollHeight;
-}
-function toast(msg) {
-  const t = $('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3500);
-}
-
-$('proModal').addEventListener('click', e => { if (e.target === $('proModal')) closeProModal(); });
-
-init();
-</script>
-</body>
-</html>
+      // Parse JSON captions from Invidious (they return JS
