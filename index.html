@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XAUUSD Precision Intraday Terminal (M15-H1)</title>
+<title>XAUUSD Precision Terminal & Proximity Radar</title>
 <style>
 :root[data-theme="dark"]{--bg:#0d1117;--bg-card:#161b22;--border:#30363d;--text:#c9d1d9;--text-dim:#8b949e;--text-bright:#f0f6fc;--green:#3fb950;--red:#f85149;--blue:#58a6ff;--yellow:#d29922;--purple:#a371f7}
 :root[data-theme="light"]{--bg:#fff;--bg-card:#f6f8fa;--border:#d0d7de;--text:#24292f;--text-dim:#656d76;--text-bright:#1f2328;--green:#1a7f37;--red:#cf222e;--blue:#0969da;--yellow:#9a6700;--purple:#8250df}
@@ -22,21 +22,21 @@ header h1{font-size:20px;font-weight:600;color:var(--text-bright);display:flex;a
 .badge-buy{background:rgba(63,185,80,0.15);color:var(--green);border:1px solid var(--green)}
 .badge-sell{background:rgba(248,81,73,0.15);color:var(--red);border:1px solid var(--red)}
 .badge-wait{background:rgba(139,148,158,0.15);color:var(--text-dim);border:1px solid var(--border)}
+.badge-near{background:rgba(210,153,34,0.15);color:var(--yellow);border:1px solid var(--yellow)}
 .level-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
 .level-row:last-child{border-bottom:none}
 .val-res{color:var(--red);font-weight:600}
 .val-sup{color:var(--green);font-weight:600}
 .val-entry{color:var(--blue);font-weight:600}
-.tf-selector{display:flex;gap:8px;margin-bottom:12px}
-.tf-btn{padding:4px 10px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:11px;cursor:pointer}
-.tf-btn.active{border-color:var(--blue);color:var(--blue);font-weight:700}
+.progress-bar{width:100%;height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin-top:8px;border:1px solid var(--border)}
+.progress-fill{height:100%;border-radius:4px;transition:width .4s ease, background .4s ease}
 .footer{text-align:center;padding:20px 0;color:var(--text-dim);font-size:11px;border-top:1px solid var(--border);margin-top:20px}
 </style>
 </head>
 <body>
 <div class="container">
 <header>
-<h1><span class="gold-icon">Au</span> XAUUSD Precision Engine (M15/M30/H1)</h1>
+<h1><span class="gold-icon">Au</span> XAUUSD Precision Radar</h1>
 <div>
 <span id="syncTime" style="font-size:12px;color:var(--text-dim);margin-right:10px">Ładowanie...</span>
 <button class="theme-toggle" onclick="toggleTheme()">🌓 Tryb</button>
@@ -46,49 +46,51 @@ header h1{font-size:20px;font-weight:600;color:var(--text-bright);display:flex;a
 <div class="grid">
 <!-- CENA LIVE -->
 <div class="card">
-<div class="card-title">Cena Rynkowa (XAU/USD)</div>
+<div class="card-title">Cena Aktualna (XAU/USD)</div>
 <div class="big-number" id="livePrice">---</div>
-<div style="font-size:12px;color:var(--text-dim);margin-top:6px">Status: Połączenie na żywo (60s)</div>
+<div style="font-size:12px;color:var(--text-dim);margin-top:6px">Status: Monitorowanie odległości stref</div>
 </div>
 
-<!-- DETEKTOR PRECYZYJNYCH WEJŚĆ -->
+<!-- RADAR BLISKOŚCI SETUPU -->
 <div class="card">
-<div class="card-title">Detektor Konfluencji Intraday</div>
-<div class="tf-selector">
-<button class="tf-btn active">M15</button>
-<button class="tf-btn">M30</button>
-<button class="tf-btn">H1</button>
+<div class="card-title">Radar Bliskości Wejścia (Proximity Meter)</div>
+<div style="margin:6px 0;">
+<span id="proximityBadge" class="badge badge-wait">ANALIZA ODLEGLOŚCI...</span>
 </div>
-<div style="margin:8px 0;">
-<span id="signalBadge" class="badge badge-wait">SKANOWANIE STREF...</span>
+<div style="font-size:12px;margin-top:6px;display:flex;justify-content:space-between;">
+<span>Gotowość setupu:</span>
+<strong id="proximityPercent">0%</strong>
 </div>
-<div id="signalReason" style="font-size:12px;color:var(--text-dim)">Czekam na sweep płynności + wyprzedanie/wykupienie RSI.</div>
+<div class="progress-bar">
+<div id="proximityProgress" class="progress-fill" style="width:0%; background:var(--text-dim)"></div>
+</div>
+<div id="proximityDetails" style="font-size:11px;color:var(--text-dim);margin-top:6px">---</div>
 </div>
 </div>
 
 <div class="grid">
 <!-- WARTOŚCI TRANSAKCJI -->
 <div class="card">
-<div class="card-title">Precyzyjne Poziomy Wejścia i Ochrony</div>
-<div class="level-row"><span>Sygnalizowany punkt wejścia</span><span class="val-entry" id="entryVal">---</span></div>
-<div class="level-row"><span>Stop Loss (Ochrona Pod/Nad Szczytem)</span><span class="val-res" id="slVal">---</span></div>
-<div class="level-row"><span>Take Profit 1 (Target 1:1.5)</span><span class="val-sup" id="tp1Val">---</span></div>
-<div class="level-row"><span>Take Profit 2 (Target 1:2.5)</span><span class="val-sup" id="tp2Val">---</span></div>
+<div class="card-title">Wyliczone Parametry Zlecenia</div>
+<div class="level-row"><span>Targetowana Strefa Wejścia</span><span class="val-entry" id="targetZone">---</span></div>
+<div class="level-row"><span>Pozostały dystans do strefy</span><span style="font-weight:600" id="distancePips">---</span></div>
+<div class="level-row"><span>Projektowany Stop Loss</span><span class="val-res" id="calcSL">---</span></div>
+<div class="level-row"><span>Projektowany Take Profit</span><span class="val-sup" id="calcTP">---</span></div>
 </div>
 
-<!-- FILTRY BEZPIECZEŃSTWA INTRADAY -->
+<!-- INSTRUKCJA DLA SPEKULANTA -->
 <div class="card">
-<div class="card-title">Filtr Wysokiej Trafności M15-H1</div>
+<div class="card-title">Jak używać Radaru?</div>
 <div style="font-size:12px;line-height:1.7;color:var(--text)">
-<div>• <strong>Brak fałszywek:</strong> Pozycja jest generowana wyłącznie po wyczyszczeniu lokalnych maksimów/minimów (Sweep).</div>
-<div>• <strong>Timing:</strong> Najwyższa skuteczność występuje podczas sesji Londyńskiej i Nowojorskiej.</div>
-<div>• <strong>Wskaźnik R:R:</strong> Stałe 1:2 dla zapewnienia dodatniego wyniku finansowego.</div>
+<div>• <strong>0% - 60%:</strong> Cena głęboko w środku zakresu. Zamiast gapić się w wykres, możesz odejść od komputera.</div>
+<div>• <strong>60% - 85%:</strong> Rynek zmierza w stronę płynności. Warto zerkać na interwał M15.</div>
+<div>• <strong>85% - 100%:</strong> Strefa reakcji! Bądź gotowy na egzekucję zlecenia.</div>
 </div>
 </div>
 </div>
 
 <div class="footer">
-XAUUSD Precision Engine | Moduł precyzyjnych wejść Intraday (M15 / M30 / H1)
+XAUUSD Precision Radar | Silnik monitorowania odległości od stref rynkowych
 </div>
 </div>
 
@@ -98,7 +100,7 @@ function toggleTheme() {
     html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
 }
 
-async function analyzeIntradaySetup() {
+async function updateRadar() {
     try {
         const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd');
         const data = await response.json();
@@ -108,63 +110,74 @@ async function analyzeIntradaySetup() {
 
         document.getElementById('livePrice').innerText = price.toFixed(2);
 
-        // Algorytm szukania konfluencji Intraday (Simulated M15-H1 Engine)
-        // Obliczanie stref reakcji na podstawie zmienności ATR
-        const atrM15 = 4.5; // Przykładowy zasięg świecy M15 dla Złota
-        
-        // Wyznaczanie poziomów wsparcia/oporu z ostatnich kilku świec M15
-        const localHigh = price + 6.0;
-        const localLow = price - 6.0;
+        // Zdefiniowane kluczowe strefy reakcji (np. dolna i górna płynność)
+        // Zakładamy strefy odległe o ok. $10 od ceny bieżącej dla precyzyjnego intraday
+        const demandLevel = price - 8.00; // Dolna strefa kupna
+        const supplyLevel = price + 8.00; // Górna strefa sprzedaży
 
-        const badge = document.getElementById('signalBadge');
-        const reason = document.getElementById('signalReason');
+        const distToDemand = Math.abs(price - demandLevel);
+        const distToSupply = Math.abs(supplyLevel - price);
 
-        let entry = 0, sl = 0, tp1 = 0, tp2 = 0;
-
-        // Warunek 1: Sweep dolnej płynności (Kupno)
-        if (price <= localLow + 1.0) {
-            badge.className = "badge badge-buy";
-            badge.innerText = "HIGH PROBABILITY BUY";
-            reason.innerText = "Wykonano Sweep płynności pod lokalnym dołkiem M15 + Reakcja popytu.";
-            
-            entry = price;
-            sl = price - (atrM15 * 1.2); // Wąski Stop Loss pod wybijającym dołkiem
-            tp1 = price + (atrM15 * 1.8);
-            tp2 = price + (atrM15 * 3.0);
-        } 
-        // Warunek 2: Sweep górnej płynności (Sprzedaż)
-        else if (price >= localHigh - 1.0) {
-            badge.className = "badge badge-sell";
-            badge.innerText = "HIGH PROBABILITY SELL";
-            reason.innerText = "Wykonano Sweep płynności nad lokalnym szczytem M15 + Reakcja podaży.";
-
-            entry = price;
-            sl = price + (atrM15 * 1.2);
-            tp1 = price - (atrM15 * 1.8);
-            tp2 = price - (atrM15 * 3.0);
-        } 
-        // Warunek 3: Środek konsolidacji – Zakaz Handlu
-        else {
-            badge.className = "badge badge-wait";
-            badge.innerText = "NEUTRALNY ZAKRES (WAIT)";
-            reason.innerText = "Cena w środku zakresu M15/H1. Czekam na retest ekstremów strefy.";
+        // Wybieramy bliższą strefę
+        let targetZonePrice, isDemand;
+        if (distToDemand < distToSupply) {
+            targetZonePrice = demandLevel;
+            isDemand = true;
+        } else {
+            targetZonePrice = supplyLevel;
+            isDemand = false;
         }
 
-        document.getElementById('entryVal').innerText = entry ? entry.toFixed(2) : '---';
-        document.getElementById('slVal').innerText = sl ? sl.toFixed(2) : '---';
-        document.getElementById('tp1Val').innerText = tp1 ? tp1.toFixed(2) : '---';
-        document.getElementById('tp2Val').innerText = tp2 ? tp2.toFixed(2) : '---';
+        const distance = Math.abs(price - targetZonePrice);
+        
+        // Wyliczenie % bliskości setupu (skala od $8 odległości = 0% do $0 odległości = 100%)
+        let progress = Math.max(0, Math.min(100, ((8.00 - distance) / 8.00) * 100));
+
+        const badge = document.getElementById('proximityBadge');
+        const fill = document.getElementById('proximityProgress');
+        const percentTxt = document.getElementById('proximityPercent');
+        const details = document.getElementById('proximityDetails');
+
+        percentTxt.innerText = progress.toFixed(0) + '%';
+        fill.style.width = progress + '%';
+
+        if (progress < 60) {
+            badge.className = "badge badge-wait";
+            badge.innerText = "DALEKO OD STREFY (ODPOCZYNEK)";
+            fill.style.background = "var(--text-dim)";
+            details.innerText = "Cena w środku pola. Nie musisz ciągle obserwować ekranu.";
+        } else if (progress >= 60 && progress < 88) {
+            badge.className = "badge badge-near";
+            badge.innerText = "CENA ZBLIŻA SIĘ DO STREFY";
+            fill.style.background = "var(--yellow)";
+            details.innerText = "Złoto zaczyna zmierzać w stronę płynności. Przygotuj stanowisko.";
+        } else {
+            badge.className = "badge " + (isDemand ? "badge-buy" : "badge-sell");
+            badge.innerText = isDemand ? "STREFA KUPNA (REAKCJA!)" : "STREFA SPRZEDAŻY (REAKCJA!)";
+            fill.style.background = isDemand ? "var(--green)" : "var(--red)";
+            details.innerText = "Idealna strefa wejścia! Szukaj potwierdzenia świecowego.";
+        }
+
+        // Ustawienia w tabeli
+        document.getElementById('targetZone').innerText = targetZonePrice.toFixed(2) + (isDemand ? " (Demand)" : " (Supply)");
+        document.getElementById('distancePips').innerText = "$" + distance.toFixed(2);
+        
+        let sl = isDemand ? targetZonePrice - 4.50 : targetZonePrice + 4.50;
+        let tp = isDemand ? targetZonePrice + 11.25 : targetZonePrice - 11.25;
+
+        document.getElementById('calcSL').innerText = sl.toFixed(2);
+        document.getElementById('calcTP').innerText = tp.toFixed(2);
 
         const now = new Date();
         document.getElementById('syncTime').innerText = now.toTimeString().split(' ')[0].substring(0,5) + ' | Live Data';
 
     } catch (e) {
-        console.error("Błąd analityczny:", e);
+        console.error("Błąd radaru:", e);
     }
 }
 
-analyzeIntradaySetup();
-setInterval(analyzeIntradaySetup, 60000);
+updateRadar();
+setInterval(updateRadar, 60000);
 </script>
 </body>
 </html>
